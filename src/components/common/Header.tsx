@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Phone, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import routes from '../../routes';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ConsultationForm from '@/components/forms/ConsultationForm';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const navigation = routes.filter(route => route.visible !== false);
+  const { language, setLanguage, t } = useLanguage();
+
+  const navigation = [
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.about'), path: '/about' },
+    { name: t('nav.products'), path: '/products' },
+    { name: t('nav.solutions'), path: '/solutions' },
+    { name: t('nav.news'), path: '/news' },
+    { name: t('nav.contact'), path: '/contact' }
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,13 +69,27 @@ const Header: React.FC = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
+          {/* Language Switcher & CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Language Switcher */}
+            <Select value={language} onValueChange={(value: 'zh' | 'en') => setLanguage(value)}>
+              <SelectTrigger className="w-32 h-9">
+                <div className="flex items-center space-x-2">
+                  <Globe className="w-4 h-4" />
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="zh">中文</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
                   <Phone className="w-4 h-4 mr-2" />
-                  预约一对一咨询
+                  {t('nav.consultation')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
@@ -105,12 +129,29 @@ const Header: React.FC = () => {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Language Switcher */}
+              <div className="px-3 py-2">
+                <Select value={language} onValueChange={(value: 'zh' | 'en') => setLanguage(value)}>
+                  <SelectTrigger className="w-full">
+                    <div className="flex items-center space-x-2">
+                      <Globe className="w-4 h-4" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="zh">中文</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="pt-2">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white">
                       <Phone className="w-4 h-4 mr-2" />
-                      预约一对一咨询
+                      {t('nav.consultation')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
