@@ -22,7 +22,26 @@ const ConsultationForm: React.FC = () => {
   const onSubmit = async (data: InquiryFormData) => {
     setIsSubmitting(true);
     try {
+      // 提交到数据库
       await inquiryApi.submitInquiry(data);
+      
+      // 发送邮件通知
+      try {
+        const response = await fetch('/functions/v1/send-inquiry-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+          console.warn('邮件发送失败，但数据已保存');
+        }
+      } catch (emailError) {
+        console.warn('邮件发送失败:', emailError);
+      }
+      
       toast.success('咨询申请提交成功！我们将在24小时内与您联系。');
       reset();
     } catch (error) {

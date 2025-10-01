@@ -96,7 +96,7 @@ const Home: React.FC = () => {
                   <ConsultationForm />
                 </DialogContent>
               </Dialog>
-              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-900 px-8 py-4 text-lg backdrop-blur-sm transition-all duration-300" asChild>
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-900 px-8 py-4 text-lg backdrop-blur-sm transition-all duration-300 bg-white/10" asChild>
                 <Link to="/products">
                   {t('home.hero.products')} <ArrowRight className="ml-3 w-6 h-6" />
                 </Link>

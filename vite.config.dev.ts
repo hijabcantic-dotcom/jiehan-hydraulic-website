@@ -8,7 +8,7 @@
     import {
       makeTagger,
       injectedGuiListenerPlugin,
-      injectOnErrorPlugin,
+      injectOnErrorPlugin
     } from "miaoda-sc-plugin";
 
     const tailwindConfig = {
@@ -90,7 +90,7 @@
       plugins: [
         makeTagger(),
         injectedGuiListenerPlugin({
-          path: 'https://resource-static.cdn.bcebos.com/common/v1/injected.js'
+          path: 'https://resource-static.cdn.bcebos.com/common/v2/injected.js'
         }),
         injectOnErrorPlugin(),
         ...(userConfig?.plugins || []),
@@ -148,6 +148,37 @@
       res.end(JSON.stringify(body));
     });
   },
+  load(id) {
+    if (id === 'virtual:after-update') {
+      return `
+        if (import.meta.hot) {
+          import.meta.hot.on('vite:afterUpdate', () => {
+            window.postMessage(
+              {
+                type: 'editor-update'
+              },
+              '*'
+            );
+          });
+        }
+      `;
+    }
+  },
+  transformIndexHtml(html) {
+    return {
+      html,
+      tags: [
+        {
+          tag: 'script',
+          attrs: {
+            type: 'module',
+            src: '/@id/virtual:after-update'
+          },
+          injectTo: 'body'
+        }
+      ]
+    };
+  }
 },
 
       ],

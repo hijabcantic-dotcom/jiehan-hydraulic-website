@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowRight, Search, Filter, Grid, List } from 'lucide-react';
 import { productApi } from '@/db/api';
 import { Product } from '@/types/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,13 +17,14 @@ const Products: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   const categories = [
-    { value: 'all', label: '全部产品', count: 0 },
-    { value: 'pump', label: '液压泵', count: 0 },
-    { value: 'valve', label: '液压阀', count: 0 },
-    { value: 'cylinder', label: '液压缸', count: 0 },
-    { value: 'accessory', label: '液压附件', count: 0 }
+    { value: 'all', label: t('product.all') || '全部产品', count: 0 },
+    { value: 'pump', label: t('product.category.pump') || '液压泵', count: 0 },
+    { value: 'valve', label: t('product.category.valve') || '液压阀', count: 0 },
+    { value: 'cylinder', label: t('product.category.cylinder') || '液压缸', count: 0 },
+    { value: 'accessory', label: t('product.category.accessory') || '液压附件', count: 0 }
   ];
 
   useEffect(() => {
@@ -69,13 +71,7 @@ const Products: React.FC = () => {
   }, [products, selectedCategory, searchTerm]);
 
   const getCategoryLabel = (category: string) => {
-    const categoryMap: Record<string, string> = {
-      pump: '液压泵',
-      valve: '液压阀',
-      cylinder: '液压缸',
-      accessory: '液压附件'
-    };
-    return categoryMap[category] || category;
+    return t(`product.category.${category}`) || category;
   };
 
   const ProductCard = ({ product }: { product: Product }) => (
@@ -131,7 +127,7 @@ const Products: React.FC = () => {
 
         <Button variant="outline" size="sm" className="w-full" asChild>
           <Link to={`/products/${product.id}`}>
-            查看详情 <ArrowRight className="ml-2 w-4 h-4" />
+            {t('product.viewDetails') || '查看详情'} <ArrowRight className="ml-2 w-4 h-4" />
           </Link>
         </Button>
       </CardContent>
@@ -162,7 +158,7 @@ const Products: React.FC = () => {
             </div>
             <Button variant="outline" asChild>
               <Link to={`/products/${product.id}`}>
-                查看详情 <ArrowRight className="ml-2 w-4 h-4" />
+                {t('product.viewDetails') || '查看详情'} <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
           </div>
@@ -207,7 +203,7 @@ const Products: React.FC = () => {
       <div className="min-h-screen pt-16 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">加载产品信息中...</p>
+          <p className="text-gray-600">{t('common.loading') || '加载产品信息中...'}</p>
         </div>
       </div>
     );
@@ -218,9 +214,9 @@ const Products: React.FC = () => {
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">产品展示</h1>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">{t('nav.products') || '产品展示'}</h1>
           <p className="text-xl md:text-2xl text-blue-200 max-w-4xl mx-auto">
-            专业的液压产品系列，满足各种工业应用需求
+            {t('home.products.subtitle') || '专业的液压产品系列，满足各种工业应用需求'}
           </p>
         </div>
       </section>
@@ -233,7 +229,7 @@ const Products: React.FC = () => {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                placeholder="搜索产品名称、型号..."
+                placeholder={t('product.search') || '搜索产品名称、型号...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -265,16 +261,23 @@ const Products: React.FC = () => {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="grid w-full grid-cols-5 mb-8">
-              {categories.map((category) => (
-                <TabsTrigger key={category.value} value={category.value} className="text-sm">
-                  {category.label}
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    {category.count}
-                  </Badge>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            {/* 移动端优化的分类导航 */}
+            <div className="mb-8 overflow-x-auto">
+              <TabsList className="grid grid-cols-5 w-full min-w-max md:min-w-0">
+                {categories.map((category) => (
+                  <TabsTrigger 
+                    key={category.value} 
+                    value={category.value} 
+                    className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4"
+                  >
+                    <span className="truncate">{category.label}</span>
+                    <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs flex-shrink-0">
+                      {category.count}
+                    </Badge>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
 
             <TabsContent value={selectedCategory}>
               {filteredProducts.length === 0 ? (
@@ -302,30 +305,6 @@ const Products: React.FC = () => {
               )}
             </TabsContent>
           </Tabs>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            需要定制化解决方案？
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            我们的技术团队可以根据您的具体需求，提供专业的液压系统解决方案
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" asChild>
-              <Link to="/contact">
-                联系我们 <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-700" asChild>
-              <Link to="/solutions">
-                查看解决方案
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
     </div>
