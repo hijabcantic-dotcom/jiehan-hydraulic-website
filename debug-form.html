@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .debug-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>表单功能调试页面</h1>
+        <p>这个页面用于调试表单提交和邮件发送功能。</p>
+        
+        <form id="debugForm">
+            <div class="form-group">
+                <label for="name">姓名 *</label>
+                <input type="text" id="name" name="name" value="测试用户" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="company">公司名称</label>
+                <input type="text" id="company" name="company" value="测试公司">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">联系电话 *</label>
+                <input type="tel" id="phone" name="phone" value="13800138000" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">邮箱地址</label>
+                <input type="email" id="email" name="email" value="test@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">详细需求描述</label>
+                <textarea id="message" name="message" rows="4">这是一个测试邮件，用于验证表单提交和邮件发送功能是否正常工作。</textarea>
+            </div>
+            
+            <button type="button" id="testEmailJS">测试 EmailJS</button>
+            <button type="button" id="testFormSubmit">测试表单提交</button>
+            <button type="button" id="checkConsole">检查控制台</button>
+        </form>
+        
+        <div id="status"></div>
+        <div id="debugInfo" class="debug-info"></div>
+    </div>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <script>
+        // EmailJS 配置
+        const USER_ID = 'gsMwOtnc9ibXKlAh1';
+        const SERVICE_ID = 'service_qeix8ow';
+        const TEMPLATE_ID = 'template_hqse8mm';
+        
+        const statusDiv = document.getElementById('status');
+        const debugInfoDiv = document.getElementById('debugInfo');
+        
+        // 显示状态信息
+        function showStatus(message, type = 'info') {
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        // 显示调试信息
+        function showDebugInfo(info) {
+            debugInfoDiv.innerHTML = `<strong>调试信息：</strong>\n${info}`;
+        }
+        
+        // 收集调试信息
+        function collectDebugInfo() {
+            const info = [];
+            info.push(`当前时间: ${new Date().toLocaleString()}`);
+            info.push(`用户代理: ${navigator.userAgent}`);
+            info.push(`页面URL: ${window.location.href}`);
+            info.push(`EmailJS SDK 状态: ${typeof emailjs !== 'undefined' ? '已加载' : '未加载'}`);
+            info.push(`控制台错误数量: ${window.consoleErrors || 0}`);
+            return info.join('\n');
+        }
+        
+        // 监听控制台错误
+        let consoleErrors = 0;
+        const originalError = console.error;
+        console.error = function(...args) {
+            consoleErrors++;
+            originalError.apply(console, args);
+        };
+        window.consoleErrors = consoleErrors;
+        
+        // 测试 EmailJS 初始化
+        async function testEmailJS() {
+            try {
+                showStatus('正在测试 EmailJS 初始化...', 'info');
+                
+                // 检查 SDK 是否加载
+                if (typeof emailjs === 'undefined') {
+                    throw new Error('EmailJS SDK 未加载，请检查网络连接');
+                }
+                
+                // 初始化
+                await emailjs.init(USER_ID);
+                
+                showStatus('✅ EmailJS 初始化成功！', 'success');
+                showDebugInfo(collectDebugInfo());
+                
+            } catch (error) {
+                showStatus(`❌ EmailJS 初始化失败: ${error.message}`, 'error');
+                showDebugInfo(collectDebugInfo() + `\n错误详情: ${error.stack}`);
+                console.error('EmailJS 初始化错误:', error);
+            }
+        }
+        
+        // 测试邮件发送
+        async function testEmailSend() {
+            try {
+                showStatus('正在测试邮件发送...', 'info');
+                
+                const formData = {
+                    name: document.getElementById('name').value,
+                    company: document.getElementById('company').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    message: document.getElementById('message').value
+                };
+                
+                const templateParams = {
+                    to_email: 'joe384326366@gmail.com',
+                    from_name: formData.name,
+                    from_company: formData.company || '未提供',
+                    from_phone: formData.phone,
+                    from_email: formData.email || '未提供',
+                    message: formData.message || '无详细描述',
+                    inquiry_type: '测试邮件',
+                    reply_to: formData.email || formData.phone
+                };
+                
+                console.log('发送邮件参数:', templateParams);
+                
+                const result = await emailjs.send(
+                    SERVICE_ID,
+                    TEMPLATE_ID,
+                    templateParams
+                );
+                
+                showStatus(`✅ 邮件发送成功！状态码: ${result.status}`, 'success');
+                showDebugInfo(collectDebugInfo() + `\n发送结果: ${JSON.stringify(result, null, 2)}`);
+                
+            } catch (error) {
+                showStatus(`❌ 邮件发送失败: ${error.message}`, 'error');
+                showDebugInfo(collectDebugInfo() + `\n错误详情: ${error.stack}`);
+                console.error('邮件发送错误:', error);
+            }
+        }
+        
+        // 测试表单提交（模拟网站表单）
+        async function testFormSubmit() {
+            try {
+                showStatus('正在测试表单提交...', 'info');
+                
+                const formData = {
+                    name: document.getElementById('name').value,
+                    company: document.getElementById('company').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    message: document.getElementById('message').value,
+                    inquiry_type: 'consultation'
+                };
+                
+                // 模拟表单验证
+                if (!formData.name.trim()) {
+                    throw new Error('姓名不能为空');
+                }
+                if (!formData.phone.trim()) {
+                    throw new Error('联系电话不能为空');
+                }
+                
+                // 模拟数据库保存
+                const mockInquiry = {
+                    ...formData,
+                    id: Date.now().toString(),
+                    created_at: new Date().toISOString()
+                };
+                
+                // 模拟邮件发送
+                await testEmailSend();
+                
+                showStatus('✅ 表单提交成功！', 'success');
+                showDebugInfo(collectDebugInfo() + `\n表单数据: ${JSON.stringify(mockInquiry, null, 2)}`);
+                
+            } catch (error) {
+                showStatus(`❌ 表单提交失败: ${error.message}`, 'error');
+                showDebugInfo(collectDebugInfo() + `\n错误详情: ${error.stack}`);
+                console.error('表单提交错误:', error);
+            }
+        }
+        
+        // 检查控制台错误
+        function checkConsole() {
+            const errors = [];
+            if (consoleErrors > 0) {
+                errors.push(`发现 ${consoleErrors} 个控制台错误`);
+            } else {
+                errors.push('未发现控制台错误');
+            }
+            
+            // 检查常见问题
+            if (typeof emailjs === 'undefined') {
+                errors.push('EmailJS SDK 未加载');
+            }
+            
+            if (!navigator.onLine) {
+                errors.push('网络连接异常');
+            }
+            
+            showStatus(errors.join('\n'), errors.length > 1 ? 'error' : 'success');
+            showDebugInfo(collectDebugInfo());
+        }
+        
+        // 绑定事件
+        document.getElementById('testEmailJS').addEventListener('click', testEmailJS);
+        document.getElementById('testFormSubmit').addEventListener('click', testFormSubmit);
+        document.getElementById('checkConsole').addEventListener('click', checkConsole);
+        
+        // 页面加载时初始化
+        window.addEventListener('load', () => {
+            showStatus('页面加载完成，可以开始测试', 'info');
+            showDebugInfo(collectDebugInfo());
+        });
+    </script>
+</body>
+</html>

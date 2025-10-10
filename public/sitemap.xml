@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- 中文页面 -->
+  <url>
+    <loc>https://jiehan-hydraulic.com/</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/about</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/about"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/products</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/products"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/products"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/solutions</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/solutions"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/solutions"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/news</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/news"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/news"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/contact</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/contact"/>
+  </url>
+  
+  <!-- 英文页面 -->
+  <url>
+    <loc>https://jiehan-hydraulic.com/en</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/en/about</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/about"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/en/products</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/products"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/products"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/en/solutions</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/solutions"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/solutions"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/en/news</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/news"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/news"/>
+  </url>
+  
+  <url>
+    <loc>https://jiehan-hydraulic.com/en/contact</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jiehan-hydraulic.com/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://jiehan-hydraulic.com/contact"/>
+  </url>
+</urlset>
