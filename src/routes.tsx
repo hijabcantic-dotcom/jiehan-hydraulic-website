@@ -7,6 +7,7 @@ import News from '@/pages/News';
 import NewsDetail from '@/pages/NewsDetail';
 import Solutions from '@/pages/Solutions';
 import Contact from '@/pages/Contact';
+import Admin from '@/pages/Admin';
 
 // 中文路由配置
 const zhRoutes: RouteConfig[] = [
@@ -64,6 +65,13 @@ const zhRoutes: RouteConfig[] = [
     path: '/contact',
     element: <Contact />,
     visible: true,
+    language: 'zh'
+  },
+  {
+    name: '后台管理',
+    path: '/admin',
+    element: <Admin />,
+    visible: false,
     language: 'zh'
   }
 ];

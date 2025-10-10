@@ -24,10 +24,13 @@ const LanguageDetector: React.FC<{ children: React.ReactNode }> = ({ children })
 
 // 应用内容组件
 const AppContent: React.FC = () => {
+  const location = useLocation();
+  const isAdminPage = location.pathname === '/admin';
+
   return (
     <LanguageDetector>
       <div className="flex flex-col min-h-screen">
-        <Header />
+        {!isAdminPage && <Header />}
         <main className="flex-grow">
           <Routes>
             {routes.map((route, index) => (
@@ -40,8 +43,8 @@ const AppContent: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-        <Footer />
-        <CustomerService />
+        {!isAdminPage && <Footer />}
+        {!isAdminPage && <CustomerService />}
         <Toaster position="top-right" />
       </div>
     </LanguageDetector>
