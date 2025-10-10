@@ -10,6 +10,8 @@ import { Product, NewsArticle } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AnimatedSection from '@/components/common/AnimatedSection';
 import ConsultationForm from '@/components/forms/ConsultationForm';
+import SEOHead from '@/components/seo/SEOHead';
+import { seoConfig, generateStructuredData } from '@/config/seo';
 
 const Home: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -47,8 +49,30 @@ const Home: React.FC = () => {
     { number: '98%', label: t('home.stats.satisfaction'), icon: TrendingUp }
   ];
 
+  const { language } = useLanguage();
+  const seoData = seoConfig.pages.home[language];
+  const structuredData = generateStructuredData('Organization', {
+    '@type': 'Organization',
+    name: seoConfig.site.name,
+    foundingDate: '2008',
+    numberOfEmployees: '50-100',
+    industry: 'Hydraulic Equipment Manufacturing'
+  });
+
   return (
     <div className="min-h-screen">
+      <SEOHead
+        title={seoData.title}
+        description={seoData.description}
+        keywords={seoData.keywords}
+        canonical={language === 'en' ? '/en' : '/'}
+        structuredData={structuredData}
+        alternateHrefs={[
+          { href: `${seoConfig.site.url}/`, hrefLang: 'zh' },
+          { href: `${seoConfig.site.url}/en`, hrefLang: 'en' }
+        ]}
+      />
+      
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-gray-900">
         {/* Background Image */}

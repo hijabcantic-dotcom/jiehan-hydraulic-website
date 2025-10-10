@@ -57,4 +57,5 @@ export interface RouteConfig {
   path: string;
   element: React.ReactElement;
   visible?: boolean;
+  language?: 'zh' | 'en';
 }

@@ -1,190 +1,267 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { inquiryApi } from '@/db/api';
 import { InquiryFormData } from '@/types/types';
 import { Phone, Mail, Building, MessageSquare } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ConsultationForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<InquiryFormData>({
-    defaultValues: {
-      inquiry_type: 'consultation'
-    }
+  const { language, t } = useLanguage();
+  
+  // 表单数据状态
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    phone: '',
+    email: '',
+    message: ''
   });
+  
+  // 表单错误状态
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
 
-  const onSubmit = async (data: InquiryFormData) => {
+  // 表单验证
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+    
+    // 姓名必填
+    if (!formData.name.trim()) {
+      newErrors.name = language === 'zh' ? '请输入姓名' : 'Please enter your name';
+    }
+    
+    // 中文模式：电话必填
+    if (language === 'zh') {
+      if (!formData.phone.trim()) {
+        newErrors.phone = '请输入联系电话';
+      }
+    } else {
+      // 英文模式：邮箱必填
+      if (!formData.email.trim()) {
+        newErrors.email = 'Please enter your email';
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // 提交表单
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
+      const inquiryData: InquiryFormData = {
+        name: formData.name,
+        company: formData.company || undefined,
+        phone: formData.phone,
+        email: formData.email || undefined,
+        message: formData.message || undefined,
+        inquiry_type: 'consultation'
+      };
+      
       // 提交到数据库
-      await inquiryApi.submitInquiry(data);
+      await inquiryApi.submitInquiry(inquiryData);
       
-      // 发送邮件通知
-      try {
-        const response = await fetch('/functions/v1/send-inquiry-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-        
-        if (!response.ok) {
-          console.warn('邮件发送失败，但数据已保存');
-        }
-      } catch (emailError) {
-        console.warn('邮件发送失败:', emailError);
-      }
+      toast.success(language === 'zh' ? '咨询申请提交成功！我们将在24小时内与您联系。' : 'Inquiry submitted successfully! We will contact you within 24 hours.');
       
-      toast.success('咨询申请提交成功！我们将在24小时内与您联系。');
-      reset();
+      // 重置表单
+      setFormData({
+        name: '',
+        company: '',
+        phone: '',
+        email: '',
+        message: ''
+      });
+      setErrors({});
+      
     } catch (error) {
       console.error('Error submitting inquiry:', error);
-      toast.error('提交失败，请稍后重试或直接联系我们。');
+      toast.error(language === 'zh' ? '提交失败，请稍后重试或直接联系我们。' : 'Submission failed, please try again or contact us directly.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // 更新表单数据
+  const updateFormData = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // 清除该字段的错误
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   return (
     <div className="space-y-6">
       <DialogHeader>
-        <DialogTitle className="flex items-center space-x-2">
-          <Phone className="w-5 h-5 text-blue-600" />
-          <span>预约一对一咨询</span>
+        <DialogTitle className="text-2xl font-bold text-center">
+          {language === 'zh' ? '预约一对一咨询' : 'Book One-on-One Consultation'}
         </DialogTitle>
-        <DialogDescription>
-          请填写您的联系信息，我们的技术专家将在24小时内与您联系，为您提供专业的液压解决方案。
+        <DialogDescription className="text-center text-gray-600">
+          {language === 'zh' 
+            ? '请填写您的联系信息，我们的专业团队将为您提供定制化的液压解决方案' 
+            : 'Please fill in your contact information, our professional team will provide you with customized hydraulic solutions'
+          }
         </DialogDescription>
       </DialogHeader>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* 姓名 */}
+      <form onSubmit={onSubmit} className="space-y-4">
+        {/* 姓名 - 必填 */}
         <div className="space-y-2">
-          <Label htmlFor="name" className="flex items-center space-x-1">
-            <span>姓名</span>
-            <span className="text-red-500">*</span>
+          <Label htmlFor="name" className="text-sm font-medium">
+            {language === 'zh' ? '姓名' : 'Name'} <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="name"
-            placeholder="请输入您的姓名"
-            {...register('name', { required: '请输入姓名' })}
-            className={errors.name ? 'border-red-500' : ''}
-          />
-          {errors.name && (
-            <p className="text-sm text-red-500">{errors.name.message}</p>
-          )}
+          <div className="relative">
+            <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              id="name"
+              type="text"
+              placeholder={language === 'zh' ? '请输入您的姓名' : 'Please enter your name'}
+              value={formData.name}
+              onChange={(e) => updateFormData('name', e.target.value)}
+              className={`pl-10 ${errors.name ? 'border-red-500' : ''}`}
+            />
+          </div>
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
 
-        {/* 公司名称 */}
-        <div className="space-y-2">
-          <Label htmlFor="company" className="flex items-center space-x-1">
-            <Building className="w-4 h-4" />
-            <span>公司名称</span>
-          </Label>
-          <Input
-            id="company"
-            placeholder="请输入公司名称（选填）"
-            {...register('company')}
-          />
-        </div>
+        {/* 中文模式：公司名称 - 选填 */}
+        {language === 'zh' && (
+          <div className="space-y-2">
+            <Label htmlFor="company" className="text-sm font-medium">
+              公司名称
+            </Label>
+            <div className="relative">
+              <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="company"
+                type="text"
+                placeholder="请输入公司名称（选填）"
+                value={formData.company}
+                onChange={(e) => updateFormData('company', e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        )}
 
-        {/* 联系电话 */}
+        {/* 中文模式：联系电话 - 必填 */}
+        {language === 'zh' && (
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm font-medium">
+              联系电话 <span className="text-red-500">*</span>
+            </Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="请输入手机号码"
+                value={formData.phone}
+                onChange={(e) => updateFormData('phone', e.target.value)}
+                className={`pl-10 ${errors.phone ? 'border-red-500' : ''}`}
+              />
+            </div>
+            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+          </div>
+        )}
+
+        {/* 英文模式：邮箱 - 必填 */}
+        {language === 'en' && (
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email <span className="text-red-500">*</span>
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Please enter your email"
+                value={formData.email}
+                onChange={(e) => updateFormData('email', e.target.value)}
+                className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+              />
+            </div>
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          </div>
+        )}
+
+        {/* 英文模式：WhatsApp - 选填 */}
+        {language === 'en' && (
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm font-medium">
+              WhatsApp
+            </Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="Please enter your WhatsApp number"
+                value={formData.phone}
+                onChange={(e) => updateFormData('phone', e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 详细需求描述 - 选填 */}
         <div className="space-y-2">
-          <Label htmlFor="phone" className="flex items-center space-x-1">
-            <Phone className="w-4 h-4" />
-            <span>联系电话</span>
-            <span className="text-red-500">*</span>
+          <Label htmlFor="message" className="text-sm font-medium">
+            {language === 'zh' ? '详细需求描述' : 'Detailed Requirements'}
           </Label>
-          <Input
-            id="phone"
-            placeholder="请输入手机号码"
-            {...register('phone', { 
-              required: '请输入联系电话',
-              pattern: {
-                value: /^1[3-9]\d{9}$/,
-                message: '请输入正确的手机号码'
+          <div className="relative">
+            <MessageSquare className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+            <Textarea
+              id="message"
+              placeholder={language === 'zh' 
+                ? '请详细描述您的需求，包括应用场景、技术要求等' 
+                : 'Please describe your requirements in detail, including application scenarios, technical requirements, etc.'
               }
-            })}
-            className={errors.phone ? 'border-red-500' : ''}
-          />
-          {errors.phone && (
-            <p className="text-sm text-red-500">{errors.phone.message}</p>
-          )}
+              value={formData.message}
+              onChange={(e) => updateFormData('message', e.target.value)}
+              className="pl-10 min-h-[100px]"
+            />
+          </div>
         </div>
 
-        {/* 邮箱 */}
-        <div className="space-y-2">
-          <Label htmlFor="email" className="flex items-center space-x-1">
-            <Mail className="w-4 h-4" />
-            <span>邮箱地址</span>
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="请输入邮箱地址（选填）"
-            {...register('email', {
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: '请输入正确的邮箱地址'
-              }
-            })}
-            className={errors.email ? 'border-red-500' : ''}
-          />
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email.message}</p>
-          )}
-        </div>
-
-        {/* 感兴趣的产品 */}
-        <div className="space-y-2">
-          <Label htmlFor="product_interest">感兴趣的产品类型</Label>
-          <Select onValueChange={(value) => setValue('product_interest', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="请选择产品类型（选填）" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pump">液压泵</SelectItem>
-              <SelectItem value="valve">液压阀</SelectItem>
-              <SelectItem value="cylinder">液压缸</SelectItem>
-              <SelectItem value="accessory">液压附件</SelectItem>
-              <SelectItem value="solution">整体解决方案</SelectItem>
-              <SelectItem value="other">其他</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* 详细需求 */}
-        <div className="space-y-2">
-          <Label htmlFor="message" className="flex items-center space-x-1">
-            <MessageSquare className="w-4 h-4" />
-            <span>详细需求描述</span>
-          </Label>
-          <Textarea
-            id="message"
-            placeholder="请描述您的具体需求，包括应用场景、技术要求等（选填）"
-            rows={4}
-            {...register('message')}
-          />
-        </div>
-
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+        {/* 提交按钮 */}
+        <Button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
           disabled={isSubmitting}
         >
-          {isSubmitting ? '提交中...' : '提交咨询申请'}
+          {isSubmitting 
+            ? (language === 'zh' ? '提交中...' : 'Submitting...')
+            : (language === 'zh' ? '提交咨询' : 'Submit Inquiry')
+          }
         </Button>
       </form>
 
-      <div className="text-center text-sm text-gray-500">
-        <p>或直接拨打咨询热线：<span className="font-semibold text-blue-600">400-888-6688</span></p>
+      {/* 联系信息 */}
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <h4 className="font-semibold text-blue-900 mb-2">
+          {language === 'zh' ? '热线电话' : 'Hotline'}
+        </h4>
+        <p className="text-blue-800 text-sm">
+          {language === 'zh' 
+            ? '如需紧急咨询，请直接拨打：+86 15313015206' 
+            : 'For urgent inquiries, please call directly: +86 15313015206'
+          }
+        </p>
       </div>
     </div>
   );

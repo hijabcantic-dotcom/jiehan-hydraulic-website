@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Phone, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -11,15 +11,16 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
 
   const navigation = [
-    { name: t('nav.home'), path: '/' },
-    { name: t('nav.about'), path: '/about' },
-    { name: t('nav.products'), path: '/products' },
-    { name: t('nav.solutions'), path: '/solutions' },
-    { name: t('nav.news'), path: '/news' },
-    { name: t('nav.contact'), path: '/contact' }
+    { name: t('nav.home'), path: language === 'en' ? '/en' : '/' },
+    { name: t('nav.about'), path: language === 'en' ? '/en/about' : '/about' },
+    { name: t('nav.products'), path: language === 'en' ? '/en/products' : '/products' },
+    { name: t('nav.solutions'), path: language === 'en' ? '/en/solutions' : '/solutions' },
+    { name: t('nav.news'), path: language === 'en' ? '/en/news' : '/news' },
+    { name: t('nav.contact'), path: language === 'en' ? '/en/contact' : '/contact' }
   ];
 
   useEffect(() => {
@@ -30,6 +31,37 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // 处理语言切换
+  const handleLanguageChange = (newLanguage: 'zh' | 'en') => {
+    setLanguage(newLanguage);
+    
+    // 获取当前路径并转换为对应语言的路径
+    const currentPath = location.pathname;
+    let newPath = currentPath;
+    
+    if (newLanguage === 'en') {
+      // 切换到英文
+      if (currentPath === '/') {
+        newPath = '/en';
+      } else if (!currentPath.startsWith('/en')) {
+        newPath = '/en' + currentPath;
+      }
+    } else {
+      // 切换到中文
+      if (currentPath === '/en') {
+        newPath = '/';
+      } else if (currentPath.startsWith('/en')) {
+        newPath = currentPath.replace('/en', '');
+        if (newPath === '') {
+          newPath = '/';
+        }
+      }
+    }
+    
+    // 导航到新路径
+    navigate(newPath);
+  };
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -72,7 +104,7 @@ const Header: React.FC = () => {
           {/* Language Switcher & CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Language Switcher */}
-            <Select value={language} onValueChange={(value: 'zh' | 'en') => setLanguage(value)}>
+            <Select value={language} onValueChange={handleLanguageChange}>
               <SelectTrigger className="w-32 h-9">
                 <div className="flex items-center space-x-2">
                   <Globe className="w-4 h-4" />

@@ -9,6 +9,8 @@ import { ArrowRight, Search, Filter, Grid, List } from 'lucide-react';
 import { productApi } from '@/db/api';
 import { Product } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import SEOHead from '@/components/seo/SEOHead';
+import { seoConfig, generateStructuredData } from '@/config/seo';
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -209,8 +211,51 @@ const Products: React.FC = () => {
     );
   }
 
+  const { language } = useLanguage();
+  const seoData = seoConfig.pages.products[language];
+  const currentPath = language === 'en' ? '/en/products' : '/products';
+  
+  // 生成产品结构化数据
+  const productStructuredData = products.map(product => ({
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: product.image_url,
+    category: product.category,
+    brand: {
+      '@type': 'Brand',
+      name: 'Jiehan Hydraulic'
+    },
+    manufacturer: {
+      '@type': 'Organization',
+      name: 'Jiehan Hydraulic'
+    }
+  }));
+
+  const structuredData = generateStructuredData('CollectionPage', {
+    '@type': 'CollectionPage',
+    name: seoData.title,
+    description: seoData.description,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: productStructuredData
+    }
+  });
+
   return (
     <div className="min-h-screen pt-16">
+      <SEOHead
+        title={seoData.title}
+        description={seoData.description}
+        keywords={seoData.keywords}
+        canonical={currentPath}
+        structuredData={structuredData}
+        alternateHrefs={[
+          { href: `${seoConfig.site.url}/products`, hrefLang: 'zh' },
+          { href: `${seoConfig.site.url}/en/products`, hrefLang: 'en' }
+        ]}
+      />
+      
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

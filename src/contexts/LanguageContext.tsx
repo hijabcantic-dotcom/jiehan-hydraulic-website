@@ -10,6 +10,11 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+interface LanguageProviderProps {
+  children: React.ReactNode;
+  initialLanguage?: Language;
+}
+
 // 翻译数据
 const translations = {
   zh: {
@@ -198,8 +203,12 @@ const translations = {
   }
 };
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('zh');
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ 
+  children, 
+  initialLanguage = 'zh' 
+}) => {
+  const [language, setLanguage] = useState<Language>(initialLanguage);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as Language;
@@ -214,7 +223,20 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const t = (key: string): string => {
-    return translations[language][key as keyof typeof translations[typeof language]] || key;
+    // 直接访问翻译对象
+    const currentTranslations = translations[language];
+    if (currentTranslations && key in currentTranslations) {
+      return currentTranslations[key as keyof typeof currentTranslations];
+    }
+    
+    // 如果当前语言没有找到，尝试中文
+    const zhTranslations = translations.zh;
+    if (zhTranslations && key in zhTranslations) {
+      return zhTranslations[key as keyof typeof zhTranslations];
+    }
+    
+    // 如果都没有找到，返回原始key
+    return key;
   };
 
   return (

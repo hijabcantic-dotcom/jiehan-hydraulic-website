@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+
+# 允许搜索引擎抓取所有页面
+Allow: /products/
+Allow: /news/
+Allow: /en/
+Allow: /en/products/
+Allow: /en/news/
+
+# 禁止抓取管理后台
+Disallow: /admin/
+Disallow: /admin
+
+# 禁止抓取API接口
+Disallow: /api/
+
+# 禁止抓取临时文件和测试文件
+Disallow: /*.test.*
+Disallow: /*.spec.*
+Disallow: /test-*
+Disallow: /debug-*
+
+# 站点地图位置
+Sitemap: https://jiehan-hydraulic.com/sitemap.xml
+
+# 爬取延迟（可选）
+Crawl-delay: 1

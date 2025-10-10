@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译调试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>翻译系统调试</h1>
+    
+    <div class="test-item">
+        <h3>问题诊断：</h3>
+        <p>如果网站显示翻译键（如 nav.home, home.hero.title）而不是中文文案，说明翻译系统有问题。</p>
+    </div>
+    
+    <div class="test-item">
+        <h3>解决方案：</h3>
+        <ol>
+            <li><strong>清除浏览器缓存</strong>：按 Ctrl+F5 或 Cmd+Shift+R 强制刷新</li>
+            <li><strong>检查控制台错误</strong>：按 F12 打开开发者工具，查看 Console 是否有错误</li>
+            <li><strong>重新启动服务器</strong>：停止并重新启动开发服务器</li>
+        </ol>
+    </div>
+    
+    <div class="test-item">
+        <h3>测试步骤：</h3>
+        <ol>
+            <li>访问 <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
+            <li>检查是否显示"精密液压解决方案"而不是"home.hero.title"</li>
+            <li>检查导航栏是否显示"首页"而不是"nav.home"</li>
+            <li>如果仍有问题，请检查浏览器控制台的错误信息</li>
+        </ol>
+    </div>
+    
+    <div class="test-item">
+        <h3>预期结果：</h3>
+        <ul>
+            <li>✅ 首页标题：精密液压解决方案</li>
+            <li>✅ 导航栏：首页、关于企业、产品展示、解决方案、新闻中心、联系我们</li>
+            <li>✅ 按钮文字：立即咨询、查看产品</li>
+            <li>✅ 描述文字：专注液压泵、液压阀及液压附件制造15年...</li>
+        </ul>
+    </div>
+    
+    <script>
+        console.log('翻译调试页面已加载');
+        console.log('如果主网站仍有问题，请检查：');
+        console.log('1. 浏览器控制台是否有JavaScript错误');
+        console.log('2. 网络请求是否正常');
+        console.log('3. 是否需要清除浏览器缓存');
+    </script>
+</body>
+</html>
