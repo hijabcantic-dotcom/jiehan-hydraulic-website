@@ -7,6 +7,7 @@ import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/di
 import { toast } from 'sonner';
 import { inquiryApi } from '@/db/api';
 import { InquiryFormData } from '@/types/types';
+import { emailService } from '@/services/emailService';
 import { Phone, Mail, Building, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -70,7 +71,13 @@ const ConsultationForm: React.FC = () => {
         inquiry_type: 'consultation'
       };
       
-      // 提交到数据库
+      // 1. 先发送邮件通知
+      await emailService.sendEmail(inquiryData);
+      
+      // 2. 发送客户确认邮件（如果有邮箱）
+      await emailService.sendConfirmationEmail(inquiryData);
+      
+      // 3. 提交到数据库
       await inquiryApi.submitInquiry(inquiryData);
       
       toast.success(language === 'zh' ? '咨询申请提交成功！我们将在24小时内与您联系。' : 'Inquiry submitted successfully! We will contact you within 24 hours.');

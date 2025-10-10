@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { inquiryApi } from '@/db/api';
 import { InquiryFormData } from '@/types/types';
+import { emailService } from '@/services/emailService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SEOHead from '@/components/seo/SEOHead';
 import { seoConfig, generateStructuredData } from '@/config/seo';
@@ -84,7 +85,15 @@ const Contact: React.FC = () => {
         inquiry_type: 'general'
       };
       
+      // 1. 先发送邮件通知
+      await emailService.sendEmail(inquiryData);
+      
+      // 2. 发送客户确认邮件（如果有邮箱）
+      await emailService.sendConfirmationEmail(inquiryData);
+      
+      // 3. 提交到数据库
       await inquiryApi.submitInquiry(inquiryData);
+      
       toast.success(language === 'zh' ? '您的咨询已提交成功！我们将在24小时内与您联系。' : 'Your inquiry has been submitted successfully! We will contact you within 24 hours.');
       
       // 重置表单
