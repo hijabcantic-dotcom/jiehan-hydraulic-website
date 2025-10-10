@@ -1,103 +1,118 @@
-# 欢迎使用你的秒哒应用代码包
-秒哒应用链接
-    URL:https://www.miaoda.cn/projects/app-6jblbn9sip6p
+# 捷瀚液压企业官网
 
-## 介绍
+## 🌟 项目简介
 
-项目介绍
+这是一个现代化的企业官网，专为捷瀚液压公司打造，具有以下特色：
 
-## 目录结构
+- ✅ **多语言支持**：完整的中英文切换
+- ✅ **响应式设计**：完美适配桌面端和移动端
+- ✅ **SEO优化**：完整的搜索引擎优化
+- ✅ **后台管理**：功能完善的内容管理系统
+- ✅ **现代化技术栈**：React + TypeScript + Vite
 
-```
-├── README.md # 说明文档
-├── components.json # 组件库配置
-├── eslint.config.js # eslint 配置
-├── index.html # 入口文件
-├── package.json # 包管理
-├── postcss.config.js # postcss 配置
-├── public # 静态资源目录
-│   ├── favicon.png # 图标
-│   └── images # 图片资源
-├── src # 源码目录
-│   ├── App.tsx # 入口文件
-│   ├── components # 组件目录
-│   ├── context # 上下文目录
-│   ├── db # 数据库配置目录
-│   ├── hooks # 通用钩子函数目录
-│   ├── index.css # 全局样式
-│   ├── layout # 布局目录
-│   ├── lib # 工具库目录
-│   ├── main.tsx # 入口文件
-│   ├── routes.tsx # 路由配置
-│   ├── pages # 页面目录
-│   ├── services  # 数据库交互目录
-│   ├── types   # 类型定义目录
-├── tsconfig.app.json  # ts 前端配置文件
-├── tsconfig.json # ts 配置文件
-├── tsconfig.node.json # ts node端配置文件
-└── vite.config.ts # vite 配置文件
-```
+## 🚀 快速部署
 
-## 技术栈
+### 方法一：使用Vercel（推荐）
 
-Vite、TypeScript、React、Supabase
+1. **创建GitHub仓库**
+   ```bash
+   # 在GitHub上创建新仓库，然后：
+   git remote add origin https://github.com/YOUR_USERNAME/jiehan-hydraulic-website.git
+   git push -u origin main
+   ```
 
-## 本地开发
+2. **部署到Vercel**
+   - 访问 [vercel.com](https://vercel.com)
+   - 使用GitHub账号登录
+   - 点击 "New Project"
+   - 选择您的仓库
+   - 点击 "Deploy"
 
-### 如何在本地编辑代码？
+3. **配置环境变量**（可选）
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-您可以选择 [VSCode](https://code.visualstudio.com/Download) 或者您常用的任何 IDE 编辑器，唯一的要求是安装 Node.js 和 npm.
+### 方法二：使用部署脚本
 
-### 环境要求
-
-```
-# Node.js ≥ 20
-# npm ≥ 10
-例如：
-# node -v   # v20.18.3
-# npm -v    # 10.8.2
+```bash
+# 运行部署脚本
+./deploy.sh
 ```
 
-具体安装步骤如下：
+## 📱 功能特性
 
-### 在 Windows 上安装 Node.js
+### 前端功能
+- 🏠 **首页**：企业介绍、核心产品、最新动态
+- 🏢 **关于企业**：公司概况、发展历程、企业价值观
+- 📦 **产品展示**：产品分类、详情展示、搜索筛选
+- 💡 **解决方案**：行业解决方案、技术优势
+- 📰 **新闻中心**：公司动态、行业资讯
+- 📞 **联系我们**：联系表单、公司信息
+
+### 后台管理
+- 📊 **数据概览**：统计图表、关键指标
+- 📦 **产品管理**：添加、编辑、删除产品
+- 📰 **新闻管理**：发布、管理新闻内容
+- 🖼️ **图片管理**：上传、管理图片资源
+
+### 技术特性
+- 🌐 **多语言**：中英文无缝切换
+- 📱 **响应式**：完美适配各种设备
+- 🔍 **SEO优化**：搜索引擎友好
+- ⚡ **性能优化**：快速加载、流畅体验
+- 🛡️ **安全可靠**：现代化安全实践
+
+## 🛠️ 本地开发
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+## 📁 项目结构
 
 ```
-# Step 1: 访问Node.js官网：https://nodejs.org/，点击下载后，会根据你的系统自动选择合适的版本（32位或64位）。
-# Step 2: 运行安装程序：下载完成后，双击运行安装程序。
-# Step 3: 完成安装：按照安装向导完成安装过程。
-# Step 4: 验证安装：在命令提示符（cmd）或IDE终端（terminal）中输入 node -v 和 npm -v 来检查 Node.js 和 npm 是否正确安装。
+src/
+├── components/          # 组件
+│   ├── common/         # 通用组件
+│   ├── forms/          # 表单组件
+│   └── seo/            # SEO组件
+├── contexts/           # React上下文
+├── pages/              # 页面组件
+├── db/                 # 数据库相关
+├── config/             # 配置文件
+└── types/              # TypeScript类型
 ```
 
-### 在 macOS 上安装 Node.js
+## 🌐 访问地址
 
-```
-# Step 1: 使用Homebrew安装（推荐方法）：打开终端。输入命令brew install node并回车。如果尚未安装Homebrew，需要先安装Homebrew，
-可以通过在终端中运行如下命令来安装：
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-或者使用官网安装程序：访问Node.js官网。下载macOS的.pkg安装包。打开下载的.pkg文件，按照提示完成安装。
-# Step 2: 验证安装：在命令提示符（cmd）或IDE终端（terminal）中输入 node -v 和 npm -v 来检查 Node.js 和 npm 是否正确安装。
-```
+- **中文版**：`https://your-domain.com`
+- **英文版**：`https://your-domain.com/en`
+- **后台管理**：`https://your-domain.com/admin`
 
-### 安装完后按照如下步骤操作：
+## 📞 技术支持
 
-```
-# Step 1: 下载代码包
-# Step 2: 解压代码包
-# Step 3: 用IDE打开代码包，进入代码目录
-# Step 4: IDE终端输入命令行，安装依赖：npm i
-# Step 5: IDE终端输入命令行，启动开发服务器：npm run dev -- --host 127.0.0.1
-```
+如果您在部署或使用过程中遇到问题，请：
 
-### 如何开发后端服务？
+1. 查看 `DEPLOYMENT_GUIDE.md` 详细部署指南
+2. 检查控制台错误信息
+3. 确认环境变量配置正确
 
-配置环境变量，安装相关依赖
-如需使用数据库，请使用 supabase 官方版本或自行部署开源版本的 Supabase
+## 📄 许可证
 
-### 如何配置应用中的三方 API？
+本项目仅供捷瀚液压公司使用。
 
-具体三方 API 调用方法，请参考帮助文档：[源码导出](https://cloud.baidu.com/doc/MIAODA/s/Xmewgmsq7)，了解更多详细内容。
+---
 
-## 了解更多
-
-您也可以查看帮助文档：[源码导出](https://cloud.baidu.com/doc/MIAODA/s/Xmewgmsq7)，了解更多详细内容。
+**部署完成后，您将拥有一个专业、现代、功能完善的企业官网！** 🎉
