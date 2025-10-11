@@ -174,9 +174,30 @@ const createMockClient = () => ({
                 data: newData, 
                 error: null 
               });
+            },
+            single: () => {
+              console.log(`模拟查询插入后的单条数据: ${table}，返回数据:`, newData[0]);
+              return Promise.resolve({ 
+                data: newData[0], 
+                error: null 
+              });
             }
-          })
-        })
+          }),
+          single: () => {
+            console.log(`模拟查询插入后的单条数据: ${table}，返回数据:`, newData[0]);
+            return Promise.resolve({ 
+              data: newData[0], 
+              error: null 
+            });
+          }
+        }),
+        single: () => {
+          console.log(`模拟查询插入后的单条数据: ${table}，返回数据:`, newData[0]);
+          return Promise.resolve({ 
+            data: newData[0], 
+            error: null 
+          });
+        }
       };
     },
     update: (data: any) => ({

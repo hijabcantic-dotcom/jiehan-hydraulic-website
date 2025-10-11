@@ -40,9 +40,36 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
   }, [content]);
 
   const execCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
-    updateContent();
+    if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand(command, false, value);
+      updateContent();
+    }
+  };
+
+  const applyHeading = (level: number) => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const selectedText = range.toString();
+        
+        if (selectedText) {
+          // 如果有选中文本，替换为标题
+          const heading = document.createElement(`h${level}`);
+          heading.textContent = selectedText;
+          range.deleteContents();
+          range.insertNode(heading);
+        } else {
+          // 如果没有选中文本，插入标题标签
+          const heading = document.createElement(`h${level}`);
+          heading.innerHTML = '标题文本';
+          range.insertNode(heading);
+        }
+        updateContent();
+      }
+    }
   };
 
   const updateContent = () => {
@@ -63,18 +90,13 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // 处理回车键
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.execCommand('insertHTML', false, '<br>');
-      updateContent();
-    }
     // 处理Tab键
     if (e.key === 'Tab') {
       e.preventDefault();
       document.execCommand('insertText', false, '    ');
       updateContent();
     }
+    // 不阻止回车键，让它正常工作
   };
 
   const addLink = () => {
@@ -179,7 +201,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('formatBlock', 'h1')}
+            onClick={() => applyHeading(1)}
           >
             <Type className="h-4 w-4" />
             H1
@@ -188,7 +210,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('formatBlock', 'h2')}
+            onClick={() => applyHeading(2)}
           >
             <Type className="h-4 w-4" />
             H2
@@ -197,7 +219,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('formatBlock', 'h3')}
+            onClick={() => applyHeading(3)}
           >
             <Type className="h-4 w-4" />
             H3
