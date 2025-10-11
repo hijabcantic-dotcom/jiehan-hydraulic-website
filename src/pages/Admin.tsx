@@ -25,6 +25,7 @@ import { productApi, newsApi, inquiryApi } from '@/db/api';
 import { Product, NewsArticle, CustomerInquiry } from '@/types/types';
 import AdminAuth from '@/components/admin/AdminAuth';
 import HTMLRichEditor from '@/components/admin/HTMLRichEditor';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,8 +70,8 @@ const Admin: React.FC = () => {
     summary_en: '',
     category: '',
     image_url: '',
-    is_featured: false,
-    is_published: false  // 默认不发布
+    image_description: '',
+    is_featured: false
   });
 
   // 加载数据
@@ -144,21 +145,58 @@ const Admin: React.FC = () => {
     }
   };
 
+  // 表单验证函数
+  const validateNewsForm = () => {
+    const errors: string[] = [];
+
+    if (!newsForm.title_zh.trim()) {
+      errors.push('中文标题不能为空');
+    }
+    if (!newsForm.title_en.trim()) {
+      errors.push('英文标题不能为空');
+    }
+    if (!newsForm.summary_zh.trim()) {
+      errors.push('中文摘要不能为空');
+    }
+    if (!newsForm.summary_en.trim()) {
+      errors.push('英文摘要不能为空');
+    }
+    if (!newsForm.content_zh.trim()) {
+      errors.push('中文内容不能为空');
+    }
+    if (!newsForm.content_en.trim()) {
+      errors.push('英文内容不能为空');
+    }
+    if (!newsForm.category) {
+      errors.push('请选择新闻分类');
+    }
+
+    return errors;
+  };
+
   // 创建新闻
   const handleCreateNews = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     
+    // 表单验证
+    const validationErrors = validateNewsForm();
+    if (validationErrors.length > 0) {
+      toast.error(`表单验证失败：${validationErrors.join('，')}`);
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // 调用API创建新闻
+      // 调用API创建新闻 - 直接发布
       const createdNews = await newsApi.createNews({
         ...newsForm,
-        published_at: newsForm.is_published ? new Date().toISOString() : null
+        published_at: new Date().toISOString() // 直接发布
       });
 
       // 更新本地状态
       setNews(prev => [createdNews, ...prev]);
-      
+
       // 重置表单
       setNewsForm({
         title_zh: '',
@@ -169,11 +207,11 @@ const Admin: React.FC = () => {
         summary_en: '',
         category: '',
         image_url: '',
-        is_featured: false,
-        is_published: false
+        image_description: '',
+        is_featured: false
       });
 
-      toast.success(newsForm.is_published ? '新闻创建并发布成功！' : '新闻创建成功！已保存为草稿。');
+      toast.success('新闻创建并发布成功！');
     } catch (error) {
       console.error('创建新闻失败:', error);
       toast.error('创建新闻失败');
@@ -559,12 +597,16 @@ const Admin: React.FC = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="news_image_url">新闻图片URL</Label>
-                      <Input
-                        id="news_image_url"
-                        value={newsForm.image_url}
-                        onChange={(e) => setNewsForm(prev => ({ ...prev, image_url: e.target.value }))}
-                        placeholder="https://example.com/image.jpg"
+                      <ImageUpload
+                        onImageUpload={(imageUrl, description) => {
+                          setNewsForm(prev => ({
+                            ...prev,
+                            image_url: imageUrl,
+                            image_description: description || ''
+                          }));
+                        }}
+                        currentImageUrl={newsForm.image_url}
+                        currentDescription={newsForm.image_description}
                       />
                     </div>
 
@@ -579,16 +621,6 @@ const Admin: React.FC = () => {
                       <Label htmlFor="news_is_featured">设为推荐新闻</Label>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="news_is_published"
-                        checked={newsForm.is_published}
-                        onChange={(e) => setNewsForm(prev => ({ ...prev, is_published: e.target.checked }))}
-                        className="rounded"
-                      />
-                      <Label htmlFor="news_is_published">立即发布</Label>
-                    </div>
 
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? '创建中...' : '创建新闻'}

@@ -62,6 +62,21 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
     updateContent();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // 处理回车键
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.execCommand('insertHTML', false, '<br>');
+      updateContent();
+    }
+    // 处理Tab键
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.execCommand('insertText', false, '    ');
+      updateContent();
+    }
+  };
+
   const addLink = () => {
     const url = window.prompt('请输入链接URL:');
     if (url) {
@@ -273,6 +288,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         className="min-h-[300px] max-h-[600px] overflow-y-auto p-4 focus:outline-none prose prose-sm max-w-none"
         onInput={updateContent}
         onKeyUp={handleKeyUp}
+        onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         data-placeholder={placeholder}
         style={{ 
