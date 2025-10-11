@@ -4,11 +4,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 检查是否使用模拟模式
-// 由于当前Supabase API不可用，强制使用模拟数据模式
-const useMockData = true; // 强制使用模拟数据
+// 优先使用真实数据库，只有在连接失败时才使用模拟数据
+const useMockData = !supabaseUrl || !supabaseAnonKey;
 
 if (useMockData) {
-  console.log('使用模拟数据模式');
+  console.log('使用模拟数据模式 - 数据库配置缺失');
+} else {
+  console.log('使用真实数据库模式');
 }
 
 // 默认模拟数据
@@ -250,4 +252,17 @@ const createMockClient = () => ({
   })
 });
 
-export const supabase = useMockData ? createMockClient() : createClient(supabaseUrl, supabaseAnonKey);
+// 创建真实的Supabase客户端
+let realSupabaseClient;
+if (!useMockData) {
+  try {
+    realSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    console.log('Supabase客户端创建成功');
+  } catch (error) {
+    console.error('Supabase客户端创建失败:', error);
+    realSupabaseClient = null;
+  }
+}
+
+// 导出supabase客户端
+export const supabase = useMockData || !realSupabaseClient ? createMockClient() : realSupabaseClient;
