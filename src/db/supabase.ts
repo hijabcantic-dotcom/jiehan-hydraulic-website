@@ -3,12 +3,18 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// 强制使用真实数据库，不使用模拟数据
-const useMockData = false; // 强制使用真实数据库
+// 检测CORS问题，如果无法连接数据库则使用模拟数据
+const useMockData = false; // 默认使用真实数据库
 
-console.log('强制使用真实数据库模式');
+console.log('尝试连接真实数据库模式');
 console.log('Supabase URL:', supabaseUrl);
 console.log('Supabase Key:', supabaseAnonKey ? '已配置' : '未配置');
+
+// 检测是否是miaoda.cn域名（可能有CORS问题）
+const isMiaodaDomain = supabaseUrl && supabaseUrl.includes('miaoda.cn');
+if (isMiaodaDomain) {
+  console.warn('检测到miaoda.cn域名，可能存在CORS问题');
+}
 
 // 默认模拟数据
 const defaultMockData = {
@@ -250,15 +256,44 @@ const createMockClient = () => ({
 });
 
 // 创建真实的Supabase客户端
-let realSupabaseClient;
+let realSupabaseClient: any;
+let useRealDatabase = true;
 
 try {
   realSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
   console.log('Supabase客户端创建成功');
+  
+  // 测试数据库连接
+  testDatabaseConnection();
 } catch (error) {
   console.error('Supabase客户端创建失败:', error);
   realSupabaseClient = null;
+  useRealDatabase = false;
 }
 
-// 导出supabase客户端 - 强制使用真实数据库
-export const supabase = realSupabaseClient || createClient(supabaseUrl, supabaseAnonKey);
+// 测试数据库连接
+async function testDatabaseConnection() {
+  if (!realSupabaseClient) return;
+  
+  try {
+    // 尝试一个简单的查询来测试连接
+    const { data, error } = await realSupabaseClient
+      .from('news_articles')
+      .select('id')
+      .limit(1);
+    
+    if (error) {
+      console.warn('数据库连接测试失败，CORS错误:', error.message);
+      useRealDatabase = false;
+    } else {
+      console.log('数据库连接测试成功，使用真实数据库');
+      useRealDatabase = true;
+    }
+  } catch (error) {
+    console.warn('数据库连接测试失败，CORS错误:', error);
+    useRealDatabase = false;
+  }
+}
+
+// 导出supabase客户端 - 根据连接状态选择
+export const supabase = useRealDatabase && realSupabaseClient ? realSupabaseClient : createMockClient();

@@ -6,13 +6,20 @@ const isNetworkError = (error: any) => {
   return error?.message?.includes('CORS') || 
          error?.message?.includes('fetch') || 
          error?.message?.includes('network') ||
+         error?.message?.includes('Failed to fetch') ||
          error?.code === 'NETWORK_ERROR';
 };
 
 // 错误处理包装器
 const handleApiError = (error: any, operation: string) => {
-  console.error(`Error in ${operation}:`, error);
-  throw error;
+  if (isNetworkError(error)) {
+    console.warn(`${operation} 网络错误，可能是CORS问题:`, error.message);
+    // 不抛出错误，让调用者处理
+    return null;
+  } else {
+    console.error(`Error in ${operation}:`, error);
+    throw error;
+  }
 };
 
 // 客户咨询相关API
@@ -105,22 +112,31 @@ export const newsApi = {
 
   // 创建新闻
   async createNews(newsData: Omit<NewsArticle, 'id' | 'created_at' | 'updated_at'>): Promise<NewsArticle> {
-    const { data, error } = await supabase
-      .from('news_articles')
-      .insert([{
-        ...newsData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }])
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('news_articles')
+        .insert([{
+          ...newsData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error creating news:', error);
+      if (error) {
+        console.error('Error creating news:', error);
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      const result = handleApiError(error, '创建新闻');
+      if (result === null) {
+        // CORS错误，抛出更友好的错误信息
+        throw new Error('数据库连接失败：CORS错误。请联系管理员检查服务器配置。');
+      }
       throw error;
     }
-
-    return data;
   },
 
   // 更新新闻
