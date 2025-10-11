@@ -87,6 +87,59 @@ export const newsApi = {
     }
 
     return Array.isArray(data) ? data : [];
+  },
+
+  // 创建新闻
+  async createNews(newsData: Omit<NewsArticle, 'id' | 'created_at' | 'updated_at'>): Promise<NewsArticle> {
+    const { data, error } = await supabase
+      .from('news_articles')
+      .insert([{
+        ...newsData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating news:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // 更新新闻
+  async updateNews(id: string, newsData: Partial<NewsArticle>): Promise<NewsArticle> {
+    const { data, error } = await supabase
+      .from('news_articles')
+      .update({
+        ...newsData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating news:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // 删除新闻
+  async deleteNews(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('news_articles')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting news:', error);
+      throw error;
+    }
   }
 };
 

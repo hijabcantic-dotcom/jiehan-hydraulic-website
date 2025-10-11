@@ -70,7 +70,7 @@ const Admin: React.FC = () => {
     category: '',
     image_url: '',
     is_featured: false,
-    is_published: true
+    is_published: false  // 默认不发布
   });
 
   // 加载数据
@@ -150,19 +150,13 @@ const Admin: React.FC = () => {
     setLoading(true);
     
     try {
-      const newNews: Omit<NewsArticle, 'id' | 'created_at' | 'updated_at' | 'published_at'> = {
+      // 调用API创建新闻
+      const createdNews = await newsApi.createNews({
         ...newsForm,
-        published_at: new Date().toISOString()
-      };
+        published_at: newsForm.is_published ? new Date().toISOString() : null
+      });
 
-      // 这里应该调用API创建新闻，但由于使用模拟数据，我们直接添加到本地状态
-      const createdNews: NewsArticle = {
-        ...newNews,
-        id: Date.now().toString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
+      // 更新本地状态
       setNews(prev => [createdNews, ...prev]);
       
       // 重置表单
@@ -176,10 +170,10 @@ const Admin: React.FC = () => {
         category: '',
         image_url: '',
         is_featured: false,
-        is_published: true
+        is_published: false
       });
 
-      toast.success('新闻创建成功！');
+      toast.success(newsForm.is_published ? '新闻创建并发布成功！' : '新闻创建成功！已保存为草稿。');
     } catch (error) {
       console.error('创建新闻失败:', error);
       toast.error('创建新闻失败');
@@ -583,6 +577,17 @@ const Admin: React.FC = () => {
                         className="rounded"
                       />
                       <Label htmlFor="news_is_featured">设为推荐新闻</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="news_is_published"
+                        checked={newsForm.is_published}
+                        onChange={(e) => setNewsForm(prev => ({ ...prev, is_published: e.target.checked }))}
+                        className="rounded"
+                      />
+                      <Label htmlFor="news_is_published">立即发布</Label>
                     </div>
 
                     <Button type="submit" className="w-full" disabled={loading}>
