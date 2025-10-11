@@ -59,7 +59,7 @@ class EmailService {
         from_email: data.email || '未提供',
         message: data.message || '无详细描述',
         inquiry_type: data.inquiry_type === 'consultation' ? '咨询预约' : '一般咨询',
-        reply_to: data.email || data.phone
+        reply_to: data.email || 'joe384326366@gmail.com' // 如果没有客户邮箱，使用我们的邮箱作为回复地址
       };
 
       console.log('发送邮件参数:', templateParams);
