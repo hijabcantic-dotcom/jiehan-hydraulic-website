@@ -207,5 +207,58 @@ export const productApi = {
     }
 
     return Array.isArray(data) && data.length > 0 ? data[0] : null;
+  },
+
+  // 创建产品
+  async createProduct(productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> {
+    const { data, error } = await supabase
+      .from('products')
+      .insert([{
+        ...productData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // 更新产品
+  async updateProduct(id: string, productData: Partial<Product>): Promise<Product> {
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        ...productData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // 删除产品
+  async deleteProduct(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
   }
 };

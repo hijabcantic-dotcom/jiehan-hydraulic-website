@@ -90,8 +90,18 @@ const loadMockData = (): { [key: string]: any[] } => {
     const stored = localStorage.getItem('mockDataStore');
     if (stored) {
       const parsed = JSON.parse(stored);
-      console.log('从localStorage加载模拟数据:', parsed);
-      return parsed;
+      console.log('从localStorage加载模拟数据，大小:', stored.length, '字符');
+      console.log('加载的数据:', parsed);
+      
+      // 验证数据完整性
+      if (parsed && typeof parsed === 'object') {
+        console.log('数据加载成功，包含表:', Object.keys(parsed));
+        return parsed;
+      } else {
+        console.warn('数据格式不正确，使用默认数据');
+      }
+    } else {
+      console.log('localStorage中没有数据，使用默认数据');
     }
   } catch (error) {
     console.error('加载localStorage数据失败:', error);
@@ -104,8 +114,18 @@ const loadMockData = (): { [key: string]: any[] } => {
 // 保存数据到localStorage
 const saveMockData = (data: { [key: string]: any[] }) => {
   try {
-    localStorage.setItem('mockDataStore', JSON.stringify(data));
-    console.log('数据已保存到localStorage');
+    const dataString = JSON.stringify(data);
+    localStorage.setItem('mockDataStore', dataString);
+    console.log('数据已保存到localStorage，大小:', dataString.length, '字符');
+    console.log('保存的数据:', data);
+    
+    // 验证保存是否成功
+    const saved = localStorage.getItem('mockDataStore');
+    if (saved) {
+      console.log('验证保存成功，数据长度:', saved.length);
+    } else {
+      console.error('保存验证失败！');
+    }
   } catch (error) {
     console.error('保存到localStorage失败:', error);
   }
