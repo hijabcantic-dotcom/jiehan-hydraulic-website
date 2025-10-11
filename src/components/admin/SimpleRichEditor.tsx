@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import './SimpleRichEditor.css';
 import { 
   Bold, 
   Italic, 
@@ -229,12 +228,17 @@ const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({
       <div 
         ref={editorRef}
         contentEditable
-        className="rich-editor min-h-[300px] max-h-[600px] overflow-y-auto"
+        className="min-h-[300px] max-h-[600px] overflow-y-auto p-4 focus:outline-none prose prose-sm max-w-none"
         dangerouslySetInnerHTML={{ __html: content }}
         onInput={updateContent}
         onKeyUp={handleKeyUp}
         onPaste={handlePaste}
         data-placeholder={placeholder}
+        style={{ 
+          minHeight: '300px',
+          outline: 'none',
+          border: 'none'
+        }}
       />
 
       {/* 字符统计 */}
