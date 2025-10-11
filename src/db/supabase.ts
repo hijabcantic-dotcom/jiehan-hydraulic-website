@@ -254,15 +254,42 @@ const createMockClient = () => ({
 
 // 创建真实的Supabase客户端
 let realSupabaseClient;
+let useRealDatabase = false;
+
 if (!useMockData) {
   try {
     realSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
     console.log('Supabase客户端创建成功');
+    
+    // 测试数据库连接
+    testDatabaseConnection(realSupabaseClient);
   } catch (error) {
     console.error('Supabase客户端创建失败:', error);
     realSupabaseClient = null;
   }
 }
 
+// 测试数据库连接
+async function testDatabaseConnection(client: any) {
+  try {
+    // 尝试一个简单的查询来测试连接
+    const { data, error } = await client
+      .from('news_articles')
+      .select('id')
+      .limit(1);
+    
+    if (error) {
+      console.warn('数据库连接测试失败，将使用localStorage模式:', error.message);
+      useRealDatabase = false;
+    } else {
+      console.log('数据库连接测试成功，使用真实数据库');
+      useRealDatabase = true;
+    }
+  } catch (error) {
+    console.warn('数据库连接测试失败，将使用localStorage模式:', error);
+    useRealDatabase = false;
+  }
+}
+
 // 导出supabase客户端
-export const supabase = useMockData || !realSupabaseClient ? createMockClient() : realSupabaseClient;
+export const supabase = useMockData || !realSupabaseClient || !useRealDatabase ? createMockClient() : realSupabaseClient;
