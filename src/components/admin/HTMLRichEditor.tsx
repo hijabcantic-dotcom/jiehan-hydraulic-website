@@ -101,6 +101,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         {/* 撤销/重做 */}
         <div className="flex border-r border-gray-300 pr-2 mr-2">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('undo')}
@@ -108,6 +109,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <Undo className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('redo')}
@@ -119,6 +121,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         {/* 文本格式 */}
         <div className="flex border-r border-gray-300 pr-2 mr-2">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => {
@@ -130,6 +133,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <Bold className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => {
@@ -141,6 +145,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <Italic className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => {
@@ -156,6 +161,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         {/* 标题 */}
         <div className="flex border-r border-gray-300 pr-2 mr-2">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('formatBlock', 'h1')}
@@ -164,6 +170,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             H1
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('formatBlock', 'h2')}
@@ -172,6 +179,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             H2
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('formatBlock', 'h3')}
@@ -184,6 +192,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         {/* 列表 */}
         <div className="flex border-r border-gray-300 pr-2 mr-2">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('insertUnorderedList')}
@@ -191,6 +200,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <List className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('insertOrderedList')}
@@ -198,6 +208,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <ListOrdered className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('formatBlock', 'blockquote')}
@@ -209,6 +220,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         {/* 对齐 */}
         <div className="flex border-r border-gray-300 pr-2 mr-2">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('justifyLeft')}
@@ -216,6 +228,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <AlignLeft className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('justifyCenter')}
@@ -223,6 +236,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <AlignCenter className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => execCommand('justifyRight')}
@@ -234,6 +248,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         {/* 链接和图片 */}
         <div className="flex">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={addLink}
@@ -241,6 +256,7 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
             <Link className="h-4 w-4" />
           </Button>
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={addImage}
