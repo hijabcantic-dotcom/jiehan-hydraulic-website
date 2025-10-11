@@ -18,17 +18,31 @@ import {
   Trash2,
   Upload,
   Eye,
-  EyeOff
+  EyeOff,
+  LogOut
 } from 'lucide-react';
 import { productApi, newsApi, inquiryApi } from '@/db/api';
 import { Product, NewsArticle, CustomerInquiry } from '@/types/types';
+import AdminAuth from '@/components/admin/AdminAuth';
 
 const Admin: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [products, setProducts] = useState<Product[]>([]);
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // 认证处理
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuth');
+    setIsAuthenticated(false);
+    toast.success('已退出登录');
+  };
 
   // 产品表单状态
   const [productForm, setProductForm] = useState({
@@ -181,6 +195,11 @@ const Admin: React.FC = () => {
     featuredProducts: products.filter(p => p.is_featured).length
   };
 
+  // 如果未认证，显示登录页面
+  if (!isAuthenticated) {
+    return <AdminAuth onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 头部 */}
@@ -191,12 +210,22 @@ const Admin: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900">后台管理系统</h1>
               <p className="text-gray-600 mt-1">捷瀚液压 - 内容管理</p>
             </div>
-            <Button 
-              onClick={() => window.open('/', '_blank')}
-              variant="outline"
-            >
-              查看网站
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => window.open('/', '_blank')}
+                variant="outline"
+              >
+                查看网站
+              </Button>
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                className="text-red-600 hover:text-red-700"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                退出登录
+              </Button>
+            </div>
           </div>
         </div>
       </div>
