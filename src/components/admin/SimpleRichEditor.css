@@ -1,0 +1,110 @@
+/* 富文本编辑器样式 */
+.rich-editor {
+  min-height: 300px;
+  outline: none;
+  border: none;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+.rich-editor:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.rich-editor h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: #1f2937;
+}
+
+.rich-editor h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.8rem 0;
+  color: #374151;
+}
+
+.rich-editor h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.6rem 0;
+  color: #4b5563;
+}
+
+.rich-editor p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.rich-editor ul, .rich-editor ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.rich-editor li {
+  margin: 0.25rem 0;
+  color: #374151;
+}
+
+.rich-editor blockquote {
+  border-left: 4px solid #e5e7eb;
+  margin: 1rem 0;
+  padding-left: 1rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.rich-editor a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.rich-editor a:hover {
+  color: #1d4ed8;
+}
+
+.rich-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.rich-editor strong {
+  font-weight: bold;
+}
+
+.rich-editor em {
+  font-style: italic;
+}
+
+.rich-editor u {
+  text-decoration: underline;
+}
+
+/* 工具栏按钮样式 */
+.toolbar-button {
+  transition: all 0.2s ease;
+}
+
+.toolbar-button:hover {
+  background-color: #f3f4f6;
+}
+
+.toolbar-button.active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* 字符统计样式 */
+.character-count {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.5rem 1rem;
+}
