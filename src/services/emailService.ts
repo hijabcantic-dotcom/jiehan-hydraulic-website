@@ -52,7 +52,7 @@ class EmailService {
       await this.initialize();
 
       const templateParams = {
-        to_email: '384326366@qq.com', // 临时测试：发送到QQ邮箱
+        to_email: 'joe384326366@gmail.com', // 发送到Gmail邮箱
         from_name: data.name,
         from_company: data.company || '未提供',
         from_phone: data.phone,
