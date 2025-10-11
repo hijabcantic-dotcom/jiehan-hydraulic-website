@@ -3,15 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// 检查是否使用模拟模式
-// 优先使用真实数据库，只有在连接失败时才使用模拟数据
-const useMockData = !supabaseUrl || !supabaseAnonKey;
+// 强制使用真实数据库，不使用模拟数据
+const useMockData = false; // 强制使用真实数据库
 
-if (useMockData) {
-  console.log('使用模拟数据模式 - 数据库配置缺失');
-} else {
-  console.log('使用真实数据库模式');
-}
+console.log('强制使用真实数据库模式');
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Key:', supabaseAnonKey ? '已配置' : '未配置');
 
 // 默认模拟数据
 const defaultMockData = {
@@ -254,42 +251,14 @@ const createMockClient = () => ({
 
 // 创建真实的Supabase客户端
 let realSupabaseClient;
-let useRealDatabase = false;
 
-if (!useMockData) {
-  try {
-    realSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-    console.log('Supabase客户端创建成功');
-    
-    // 测试数据库连接
-    testDatabaseConnection(realSupabaseClient);
-  } catch (error) {
-    console.error('Supabase客户端创建失败:', error);
-    realSupabaseClient = null;
-  }
+try {
+  realSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+  console.log('Supabase客户端创建成功');
+} catch (error) {
+  console.error('Supabase客户端创建失败:', error);
+  realSupabaseClient = null;
 }
 
-// 测试数据库连接
-async function testDatabaseConnection(client: any) {
-  try {
-    // 尝试一个简单的查询来测试连接
-    const { data, error } = await client
-      .from('news_articles')
-      .select('id')
-      .limit(1);
-    
-    if (error) {
-      console.warn('数据库连接测试失败，将使用localStorage模式:', error.message);
-      useRealDatabase = false;
-    } else {
-      console.log('数据库连接测试成功，使用真实数据库');
-      useRealDatabase = true;
-    }
-  } catch (error) {
-    console.warn('数据库连接测试失败，将使用localStorage模式:', error);
-    useRealDatabase = false;
-  }
-}
-
-// 导出supabase客户端
-export const supabase = useMockData || !realSupabaseClient || !useRealDatabase ? createMockClient() : realSupabaseClient;
+// 导出supabase客户端 - 强制使用真实数据库
+export const supabase = realSupabaseClient || createClient(supabaseUrl, supabaseAnonKey);
