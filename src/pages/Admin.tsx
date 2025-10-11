@@ -24,6 +24,7 @@ import {
 import { productApi, newsApi, inquiryApi } from '@/db/api';
 import { Product, NewsArticle, CustomerInquiry } from '@/types/types';
 import AdminAuth from '@/components/admin/AdminAuth';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -526,26 +527,26 @@ const Admin: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6">
                       <div>
                         <Label htmlFor="content_zh">新闻内容（中文）</Label>
-                        <Textarea
-                          id="content_zh"
-                          value={newsForm.content_zh}
-                          onChange={(e) => setNewsForm(prev => ({ ...prev, content_zh: e.target.value }))}
-                          rows={6}
-                          required
-                        />
+                        <div className="mt-2">
+                          <RichTextEditor
+                            content={newsForm.content_zh}
+                            onChange={(content) => setNewsForm(prev => ({ ...prev, content_zh: content }))}
+                            placeholder="请输入新闻的中文内容，支持富文本格式..."
+                          />
+                        </div>
                       </div>
                       <div>
                         <Label htmlFor="content_en">新闻内容（英文）</Label>
-                        <Textarea
-                          id="content_en"
-                          value={newsForm.content_en}
-                          onChange={(e) => setNewsForm(prev => ({ ...prev, content_en: e.target.value }))}
-                          rows={6}
-                          required
-                        />
+                        <div className="mt-2">
+                          <RichTextEditor
+                            content={newsForm.content_en}
+                            onChange={(content) => setNewsForm(prev => ({ ...prev, content_en: content }))}
+                            placeholder="Enter the English content of the news, supporting rich text format..."
+                          />
+                        </div>
                       </div>
                     </div>
 

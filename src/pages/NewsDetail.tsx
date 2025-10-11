@@ -188,9 +188,10 @@ const NewsDetail: React.FC = () => {
 
           {/* 文章正文 */}
           <div className="prose prose-lg max-w-none">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-line">
-              {article.content}
-            </div>
+            <div 
+              className="text-gray-800 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
           </div>
 
           {/* 文章底部 */}
