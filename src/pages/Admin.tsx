@@ -24,7 +24,7 @@ import {
 import { productApi, newsApi, inquiryApi } from '@/db/api';
 import { Product, NewsArticle, CustomerInquiry } from '@/types/types';
 import AdminAuth from '@/components/admin/AdminAuth';
-import SimpleRichEditor from '@/components/admin/SimpleRichEditor';
+import HTMLRichEditor from '@/components/admin/HTMLRichEditor';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -531,7 +531,7 @@ const Admin: React.FC = () => {
                       <div>
                         <Label htmlFor="content_zh">新闻内容（中文）</Label>
                         <div className="mt-2">
-                          <SimpleRichEditor
+                          <HTMLRichEditor
                             content={newsForm.content_zh}
                             onChange={(content) => setNewsForm(prev => ({ ...prev, content_zh: content }))}
                             placeholder="请输入新闻的中文内容，支持富文本格式..."
@@ -541,7 +541,7 @@ const Admin: React.FC = () => {
                       <div>
                         <Label htmlFor="content_en">新闻内容（英文）</Label>
                         <div className="mt-2">
-                          <SimpleRichEditor
+                          <HTMLRichEditor
                             content={newsForm.content_en}
                             onChange={(content) => setNewsForm(prev => ({ ...prev, content_en: content }))}
                             placeholder="Enter the English content of the news, supporting rich text format..."

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -12,16 +12,18 @@ import {
   Type,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Undo,
+  Redo
 } from 'lucide-react';
 
-interface SimpleRichEditorProps {
+interface HTMLRichEditorProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
 }
 
-const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({ 
+const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({ 
   content, 
   onChange, 
   placeholder = '开始编写内容...' 
@@ -30,6 +32,12 @@ const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = content;
+    }
+  }, [content]);
 
   const execCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -64,7 +72,7 @@ const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({
   const addImage = () => {
     const url = window.prompt('请输入图片URL:');
     if (url) {
-      const img = `<img src="${url}" alt="图片" style="max-width: 100%; height: auto;" />`;
+      const img = `<img src="${url}" alt="图片" style="max-width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0;" />`;
       document.execCommand('insertHTML', false, img);
       updateContent();
     }
@@ -90,6 +98,24 @@ const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({
     <div className="border border-gray-300 rounded-lg overflow-hidden">
       {/* 工具栏 */}
       <div className="border-b border-gray-300 bg-gray-50 p-2 flex flex-wrap gap-1">
+        {/* 撤销/重做 */}
+        <div className="flex border-r border-gray-300 pr-2 mr-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('undo')}
+          >
+            <Undo className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('redo')}
+          >
+            <Redo className="h-4 w-4" />
+          </Button>
+        </div>
+
         {/* 文本格式 */}
         <div className="flex border-r border-gray-300 pr-2 mr-2">
           <Button
@@ -229,7 +255,6 @@ const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({
         ref={editorRef}
         contentEditable
         className="min-h-[300px] max-h-[600px] overflow-y-auto p-4 focus:outline-none prose prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ __html: content }}
         onInput={updateContent}
         onKeyUp={handleKeyUp}
         onPaste={handlePaste}
@@ -249,4 +274,4 @@ const SimpleRichEditor: React.FC<SimpleRichEditorProps> = ({
   );
 };
 
-export default SimpleRichEditor;
+export default HTMLRichEditor;
