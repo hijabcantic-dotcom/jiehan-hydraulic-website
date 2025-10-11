@@ -164,7 +164,18 @@ const createMockClient = () => ({
       // 保存到localStorage
       saveMockData(mockDataStore);
       
-      return Promise.resolve({ data: newData, error: null });
+      // 返回支持链式调用的对象
+      return {
+        select: (columns: string = '*') => ({
+          order: (column: string, options: any) => {
+            console.log(`模拟查询插入后的数据: ${table}，返回数据:`, newData);
+            return Promise.resolve({ 
+              data: newData, 
+              error: null 
+            });
+          }
+        })
+      };
     },
     update: (data: any) => ({
       eq: (column: string, value: any) => {
