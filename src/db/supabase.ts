@@ -4,7 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 检测CORS问题，如果无法连接数据库则使用模拟数据
-const useMockData = false; // 默认使用真实数据库
+const useMockData = false; // 使用真实数据库
 
 console.log('尝试连接真实数据库模式');
 console.log('Supabase URL:', supabaseUrl);
@@ -23,6 +23,7 @@ const defaultMockData = {
       id: '1',
       name_zh: '单齿轮泵',
       name_en: 'Single Gear Pump',
+      model: 'JHP-001',
       description_zh: '小型单齿轮泵，适用于低流量应用场景',
       description_en: 'Small single gear pump, suitable for low flow applications',
       category: '液压泵',
@@ -39,6 +40,7 @@ const defaultMockData = {
       id: '2',
       name_zh: '双齿轮泵',
       name_en: 'Double Gear Pump',
+      model: 'JHP-002',
       description_zh: '高效双齿轮泵，适用于中等流量应用',
       description_en: 'High efficiency double gear pump, suitable for medium flow applications',
       category: '液压泵',
@@ -55,6 +57,7 @@ const defaultMockData = {
       id: '3',
       name_zh: '溢流阀',
       name_en: 'Relief Valve',
+      model: 'JHV-001',
       description_zh: '精密溢流阀，确保系统压力稳定',
       description_en: 'Precision relief valve, ensuring stable system pressure',
       category: '液压阀',
@@ -68,19 +71,15 @@ const defaultMockData = {
       updated_at: new Date().toISOString()
     }
   ],
-  news: [
+  news_articles: [
     {
       id: '1',
-      title_zh: '捷瀚液压参加2024年国际液压展览会',
-      title_en: 'Jiehan Hydraulic Participates in 2024 International Hydraulic Exhibition',
-      content_zh: '捷瀚液压将参加2024年国际液压展览会，展示最新的液压技术和产品...',
-      content_en: 'Jiehan Hydraulic will participate in the 2024 International Hydraulic Exhibition, showcasing the latest hydraulic technologies and products...',
-      summary_zh: '捷瀚液压参加国际展览会，展示最新技术',
-      summary_en: 'Jiehan Hydraulic participates in international exhibition, showcasing latest technology',
-      category: '公司新闻',
+      title: '捷瀚液压参加2024年国际液压展览会',
+      content: '捷瀚液压将参加2024年国际液压展览会，展示最新的液压技术和产品...',
+      summary: '捷瀚液压参加国际展览会，展示最新技术',
+      category: 'company',
       image_url: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=400&fit=crop',
       is_featured: true,
-      is_published: true,
       published_at: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -101,6 +100,7 @@ const loadMockData = (): { [key: string]: any[] } => {
       // 验证数据完整性
       if (parsed && typeof parsed === 'object') {
         console.log('数据加载成功，包含表:', Object.keys(parsed));
+        console.log('news_articles 数据:', parsed.news_articles);
         return parsed;
       } else {
         console.warn('数据格式不正确，使用默认数据');
@@ -113,6 +113,7 @@ const loadMockData = (): { [key: string]: any[] } => {
   }
   
   console.log('使用默认模拟数据');
+  console.log('默认数据中的 news_articles:', defaultMockData.news_articles);
   return defaultMockData;
 };
 
@@ -154,6 +155,22 @@ const createMockClient = () => ({
         order: (orderColumn: string, options: any) => {
           const filteredData = (mockDataStore[table] || []).filter(item => item[column] === value);
           console.log(`模拟查询表: ${table}，条件: ${column}=${value}，返回数据:`, filteredData);
+          return Promise.resolve({ 
+            data: filteredData, 
+            error: null 
+          });
+        }
+      }),
+      not: (column: string, operator: string, value: any) => ({
+        order: (orderColumn: string, options: any) => {
+          let filteredData;
+          if (operator === 'is' && value === null) {
+            // 处理 .not('published_at', 'is', null) - 查找 published_at 不为 null 的记录
+            filteredData = (mockDataStore[table] || []).filter(item => item[column] !== null && item[column] !== undefined);
+          } else {
+            filteredData = (mockDataStore[table] || []).filter(item => item[column] !== value);
+          }
+          console.log(`模拟查询表: ${table}，条件: ${column} not ${operator} ${value}，返回数据:`, filteredData);
           return Promise.resolve({ 
             data: filteredData, 
             error: null 
@@ -296,4 +313,4 @@ async function testDatabaseConnection() {
 }
 
 // 导出supabase客户端 - 根据连接状态选择
-export const supabase = useRealDatabase && realSupabaseClient ? realSupabaseClient : createMockClient();
+export const supabase = useMockData ? createMockClient() : (useRealDatabase && realSupabaseClient ? realSupabaseClient : createMockClient());

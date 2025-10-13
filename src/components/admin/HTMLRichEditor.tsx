@@ -82,6 +82,17 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
     updateContent();
   };
 
+  const handleCompositionStart = () => {
+    // 中文输入法开始
+  };
+
+  const handleCompositionEnd = () => {
+    // 中文输入法结束，更新内容
+    setTimeout(() => {
+      updateContent();
+    }, 0);
+  };
+
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
@@ -96,7 +107,13 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
       document.execCommand('insertText', false, '    ');
       updateContent();
     }
-    // 不阻止回车键，让它正常工作
+    // 处理回车键 - 确保能正常换行
+    if (e.key === 'Enter') {
+      // 不阻止默认行为，让浏览器自然处理换行
+      setTimeout(() => {
+        updateContent();
+      }, 0);
+    }
   };
 
   const addLink = () => {
@@ -312,11 +329,15 @@ const HTMLRichEditor: React.FC<HTMLRichEditorProps> = ({
         onKeyUp={handleKeyUp}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
         data-placeholder={placeholder}
         style={{ 
           minHeight: '300px',
           outline: 'none',
-          border: 'none'
+          border: 'none',
+          wordBreak: 'break-word',
+          whiteSpace: 'pre-wrap'
         }}
       />
 

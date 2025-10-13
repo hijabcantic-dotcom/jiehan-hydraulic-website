@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,9 +19,10 @@ const News: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [categoryCounts, setCategoryCounts] = useState({ all: 0, company: 0, industry: 0, product: 0 });
 
   // 多语言内容
-  const content = {
+  const content = useMemo(() => ({
     zh: {
       hero: {
         title: '新闻中心',
@@ -31,10 +32,10 @@ const News: React.FC = () => {
         placeholder: '搜索新闻标题、内容...'
       },
       categories: [
-        { value: 'all', label: '全部新闻', count: 0 },
-        { value: 'company', label: '公司动态', count: 0 },
-        { value: 'industry', label: '行业新闻', count: 0 },
-        { value: 'product', label: '产品资讯', count: 0 }
+        { value: 'all', label: '全部新闻', count: categoryCounts.all },
+        { value: 'company', label: '公司动态', count: categoryCounts.company },
+        { value: 'industry', label: '行业新闻', count: categoryCounts.industry },
+        { value: 'product', label: '产品资讯', count: categoryCounts.product }
       ],
       empty: {
         title: '暂无新闻',
@@ -53,10 +54,10 @@ const News: React.FC = () => {
         placeholder: 'Search news title, content...'
       },
       categories: [
-        { value: 'all', label: 'All News', count: 0 },
-        { value: 'company', label: 'Company News', count: 0 },
-        { value: 'industry', label: 'Industry News', count: 0 },
-        { value: 'product', label: 'Product News', count: 0 }
+        { value: 'all', label: 'All News', count: categoryCounts.all },
+        { value: 'company', label: 'Company News', count: categoryCounts.company },
+        { value: 'industry', label: 'Industry News', count: categoryCounts.industry },
+        { value: 'product', label: 'Product News', count: categoryCounts.product }
       ],
       empty: {
         title: 'No News Available',
@@ -66,7 +67,7 @@ const News: React.FC = () => {
       publishedAt: 'Published',
       category: 'Category'
     }
-  };
+  }), [categoryCounts]);
 
   const currentContent = content[language];
 
@@ -74,14 +75,24 @@ const News: React.FC = () => {
     const fetchNews = async () => {
       try {
         const data = await newsApi.getPublishedNews();
+        console.log('获取到的新闻数据:', data);
+        console.log('新闻数量:', data.length);
         setNews(data);
         setFilteredNews(data);
         
         // 更新分类计数
-        currentContent.categories[0].count = data.length;
-        currentContent.categories[1].count = data.filter(n => n.category === 'company').length;
-        currentContent.categories[2].count = data.filter(n => n.category === 'industry').length;
-        currentContent.categories[3].count = data.filter(n => n.category === 'product').length;
+        const companyCount = data.filter(n => n.category === 'company').length;
+        const industryCount = data.filter(n => n.category === 'industry').length;
+        const productCount = data.filter(n => n.category === 'product').length;
+        
+        console.log('分类计数:', { companyCount, industryCount, productCount });
+        
+        setCategoryCounts({
+          all: data.length,
+          company: companyCount,
+          industry: industryCount,
+          product: productCount
+        });
       } catch (error) {
         console.error('Error fetching news:', error);
       } finally {
@@ -250,42 +261,42 @@ const News: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredNews.map((article) => (
-                <Card key={article.id} className="hover:shadow-lg transition-shadow duration-300">
-                  <div className="relative">
-                    <img
-                      src={article.image_url}
-                      alt={language === 'zh' ? article.title_zh : article.title_en}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <Badge className="absolute top-4 left-4 bg-blue-600 text-white">
-                      {getCategoryLabel(article.category)}
-                    </Badge>
-                  </div>
-                  
-                  <CardHeader>
-                    <CardTitle className="text-xl font-semibold line-clamp-2">
-                      {language === 'zh' ? article.title_zh : article.title_en}
-                    </CardTitle>
-                    <div className="flex items-center text-sm text-gray-500 space-x-4">
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        {formatDate(article.published_at)}
-                      </div>
+                <Card key={article.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group" asChild>
+                  <Link to={`${language === 'en' ? '/en' : ''}/news/${article.id}`} className="block">
+                    <div className="relative">
+                      <img
+                        src={article.image_url}
+                        alt={language === 'zh' ? article.title_zh : article.title_en}
+                        className="w-full h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <Badge className="absolute top-4 left-4 bg-blue-600 text-white">
+                        {getCategoryLabel(article.category)}
+                      </Badge>
                     </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <p className="text-gray-600 line-clamp-3 mb-4">
-                      {language === 'zh' ? article.summary_zh : article.summary_en}
-                    </p>
                     
-                    <Link to={`${language === 'en' ? '/en' : ''}/news/${article.id}`}>
-                      <Button variant="outline" className="w-full group">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-semibold line-clamp-2">
+                        {language === 'zh' ? article.title_zh : article.title_en}
+                      </CardTitle>
+                      <div className="flex items-center text-sm text-gray-500 space-x-4">
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          {formatDate(article.published_at)}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <p className="text-gray-600 line-clamp-3 mb-4">
+                        {language === 'zh' ? article.summary_zh : article.summary_en}
+                      </p>
+                      
+                      <div className="flex items-center justify-center text-blue-600 text-sm font-medium group-hover:text-blue-700">
                         {currentContent.readMore}
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  </CardContent>
+                      </div>
+                    </CardContent>
+                  </Link>
                 </Card>
               ))}
             </div>

@@ -50,6 +50,7 @@ const Admin: React.FC = () => {
   const [productForm, setProductForm] = useState({
     name_zh: '',
     name_en: '',
+    model: '',
     description_zh: '',
     description_en: '',
     category: '',
@@ -74,8 +75,34 @@ const Admin: React.FC = () => {
     is_featured: false
   });
 
+  // 编辑状态 - 强制初始化为null
+  const [editingNews, setEditingNews] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] = useState<string | null>(null);
+
+  // 强制重置编辑状态
+  const resetEditingStates = () => {
+    console.log('强制重置编辑状态 - 开始');
+    console.log('重置前 editingProduct:', editingProduct);
+    
+    // 检查localStorage是否有相关数据
+    console.log('localStorage keys:', Object.keys(localStorage));
+    console.log('localStorage内容:', localStorage.getItem('adminAuth'));
+    
+    setEditingProduct(null);
+    setEditingNews(null);
+    console.log('强制重置编辑状态 - 完成');
+  };
+
+  // 监听编辑状态变化
+  useEffect(() => {
+    console.log('editingProduct 状态变化:', editingProduct);
+  }, [editingProduct]);
+
   // 加载数据
   useEffect(() => {
+    // 首先重置编辑状态
+    resetEditingStates();
+    // 然后加载数据
     loadData();
   }, []);
 
@@ -91,6 +118,15 @@ const Admin: React.FC = () => {
       setProducts(productsData);
       setNews(newsData);
       setInquiries(inquiriesData);
+      
+      // 数据加载完成后，再次强制重置编辑状态
+      console.log('数据加载完成，再次强制重置编辑状态');
+      setTimeout(() => {
+        console.log('延迟重置编辑状态');
+        setEditingProduct(null);
+        setEditingNews(null);
+      }, 100);
+      
     } catch (error) {
       console.error('加载数据失败:', error);
       toast.error('加载数据失败');
@@ -102,30 +138,61 @@ const Admin: React.FC = () => {
   // 创建产品
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 表单验证
+    const validationErrors = validateProductForm();
+    if (validationErrors.length > 0) {
+      toast.error(`表单验证失败：${validationErrors.join('，')}`);
+      return;
+    }
+
     setLoading(true);
     
     try {
+      console.log('当前编辑状态:', { editingProduct, isEditing: !!editingProduct });
+      
+      // 如果编辑状态存在但产品不存在，强制重置为创建模式
+      if (editingProduct) {
+        const productExists = products.find(p => p.id === editingProduct);
+        if (!productExists) {
+          console.log('编辑的产品不存在，强制重置为创建模式');
+          setEditingProduct(null);
+        }
+      }
+
       const newProduct: Omit<Product, 'id' | 'created_at' | 'updated_at'> = {
         ...productForm,
+        name_zh: productForm.name_zh.trim(),
+        name_en: productForm.name_en.trim(),
+        model: productForm.model.trim() || undefined,
+        description_zh: productForm.description_zh.trim() || undefined,
+        description_en: productForm.description_en.trim() || undefined,
         features: productForm.features.split(',').map(f => f.trim()).filter(f => f),
         applications: productForm.applications.split(',').map(a => a.trim()).filter(a => a),
         sort_order: products.length + 1
       };
 
-      // 这里应该调用API创建产品，但由于使用模拟数据，我们直接添加到本地状态
-      const createdProduct: Product = {
-        ...newProduct,
-        id: Date.now().toString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      setProducts(prev => [createdProduct, ...prev]);
+      let result;
+      if (editingProduct) {
+        // 编辑模式
+        console.log('编辑模式：更新产品ID:', editingProduct);
+        result = await productApi.updateProduct(editingProduct, newProduct);
+        setProducts(prev => prev.map(p => p.id === editingProduct ? result : p));
+        setEditingProduct(null);
+        toast.success('产品更新成功！');
+      } else {
+        // 创建模式
+        console.log('创建模式：创建新产品');
+        result = await productApi.createProduct(newProduct);
+        setProducts(prev => [result, ...prev]);
+        toast.success('产品创建成功！');
+      }
       
       // 重置表单
       setProductForm({
         name_zh: '',
         name_en: '',
+        model: '',
         description_zh: '',
         description_en: '',
         category: '',
@@ -135,8 +202,6 @@ const Admin: React.FC = () => {
         image_url: '',
         is_featured: false
       });
-
-      toast.success('产品创建成功！');
     } catch (error) {
       console.error('创建产品失败:', error);
       toast.error('创建产品失败');
@@ -174,6 +239,23 @@ const Admin: React.FC = () => {
     return errors;
   };
 
+  // 产品表单验证函数
+  const validateProductForm = () => {
+    const errors: string[] = [];
+
+    if (!productForm.name_zh.trim()) {
+      errors.push('中文产品名称不能为空');
+    }
+    if (!productForm.name_en.trim()) {
+      errors.push('英文产品名称不能为空');
+    }
+    if (!productForm.category) {
+      errors.push('请选择产品分类');
+    }
+
+    return errors;
+  };
+
   // 创建新闻
   const handleCreateNews = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,14 +270,38 @@ const Admin: React.FC = () => {
     setLoading(true);
 
     try {
-      // 调用API创建新闻 - 直接发布
-      const createdNews = await newsApi.createNews({
-        ...newsForm,
-        published_at: new Date().toISOString() // 直接发布
-      });
+      // 分类映射：中文 -> 英文
+      const categoryMap: { [key: string]: string } = {
+        '公司新闻': 'company',
+        '行业动态': 'industry', 
+        '产品发布': 'product',
+        '展会活动': 'exhibition'
+      };
 
-      // 更新本地状态
-      setNews(prev => [createdNews, ...prev]);
+      // 确保必填字段不为空
+      const newsData = {
+        ...newsForm,
+        title_zh: newsForm.title_zh.trim() || '未设置标题',
+        title_en: newsForm.title_en.trim() || 'No Title Set',
+        category: categoryMap[newsForm.category] || newsForm.category, // 映射分类
+        published_at: new Date().toISOString() // 直接发布
+      };
+
+      console.log('发送的新闻数据:', newsData);
+
+      let result;
+      if (editingNews) {
+        // 编辑模式
+        result = await newsApi.updateNews(editingNews, newsData);
+        setNews(prev => prev.map(n => n.id === editingNews ? result : n));
+        setEditingNews(null);
+        toast.success('新闻更新成功！');
+      } else {
+        // 创建模式
+        result = await newsApi.createNews(newsData);
+        setNews(prev => [result, ...prev]);
+        toast.success('新闻创建并发布成功！');
+      }
 
       // 重置表单
       setNewsForm({
@@ -210,13 +316,119 @@ const Admin: React.FC = () => {
         image_description: '',
         is_featured: false
       });
-
-      toast.success('新闻创建并发布成功！');
     } catch (error) {
       console.error('创建新闻失败:', error);
       toast.error('创建新闻失败');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 编辑新闻
+  const handleEditNews = (newsId: string) => {
+    const article = news.find(n => n.id === newsId);
+    if (article) {
+      setEditingNews(newsId);
+      setNewsForm({
+        title_zh: article.title_zh || '',
+        title_en: article.title_en || '',
+        content_zh: article.content_zh || '',
+        content_en: article.content_en || '',
+        summary_zh: article.summary_zh || '',
+        summary_en: article.summary_en || '',
+        category: article.category || '',
+        image_url: article.image_url || '',
+        image_description: article.image_description || '',
+        is_featured: article.is_featured || false
+      });
+    }
+  };
+
+  // 删除新闻
+  const handleDeleteNews = async (newsId: string) => {
+    if (window.confirm('确定要删除这条新闻吗？')) {
+      try {
+        console.log('开始删除新闻:', newsId);
+        await newsApi.deleteNews(newsId);
+        console.log('新闻删除API调用成功');
+        
+        // 更新本地状态
+        setNews(prev => {
+          const newNews = prev.filter(n => n.id !== newsId);
+          console.log('本地状态更新:', { 删除前: prev.length, 删除后: newNews.length });
+          return newNews;
+        });
+        
+        toast.success('新闻删除成功！');
+        
+        // 重新加载数据以确保同步
+        setTimeout(() => {
+          loadData();
+        }, 1000);
+      } catch (error) {
+        console.error('删除新闻失败:', error);
+        toast.error(`删除新闻失败: ${error.message || '未知错误'}`);
+      }
+    }
+  };
+
+  // 编辑产品
+  const handleEditProduct = (productId: string) => {
+    console.log('编辑产品按钮被点击，产品ID:', productId);
+    console.log('当前产品列表:', products);
+    
+    const product = products.find(p => p.id === productId);
+    console.log('找到的产品:', product);
+    
+    if (product) {
+      console.log('开始设置编辑状态和表单数据');
+      setEditingProduct(productId);
+      setProductForm({
+        name_zh: product.name_zh || '',
+        name_en: product.name_en || '',
+        model: product.model || '',
+        description_zh: product.description_zh || '',
+        description_en: product.description_en || '',
+        category: product.category || '',
+        specifications: product.specifications || {},
+        features: product.features || '',
+        applications: Array.isArray(product.applications) 
+          ? product.applications.join('\n') 
+          : product.applications || '',
+        image_url: product.image_url || '',
+        is_featured: product.is_featured || false
+      });
+      console.log('编辑状态和表单数据设置完成');
+    } else {
+      console.error('未找到产品，ID:', productId);
+    }
+  };
+
+  // 删除产品
+  const handleDeleteProduct = async (productId: string) => {
+    if (window.confirm('确定要删除这个产品吗？')) {
+      try {
+        console.log('开始删除产品:', productId);
+        await productApi.deleteProduct(productId);
+        console.log('产品删除API调用成功');
+        
+        // 更新本地状态
+        setProducts(prev => {
+          const newProducts = prev.filter(p => p.id !== productId);
+          console.log('本地状态更新:', { 删除前: prev.length, 删除后: newProducts.length });
+          return newProducts;
+        });
+        
+        toast.success('产品删除成功！');
+        
+        // 重新加载数据以确保同步
+        setTimeout(() => {
+          loadData();
+        }, 1000);
+      } catch (error) {
+        console.error('删除产品失败:', error);
+        toast.error(`删除产品失败: ${error.message || '未知错误'}`);
+      }
     }
   };
 
@@ -351,7 +563,7 @@ const Admin: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plus className="h-5 w-5" />
-                    创建新产品
+                    {editingProduct ? '编辑产品' : '创建新产品'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -375,6 +587,16 @@ const Admin: React.FC = () => {
                           required
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="model">产品型号</Label>
+                      <Input
+                        id="model"
+                        value={productForm.model}
+                        onChange={(e) => setProductForm(prev => ({ ...prev, model: e.target.value }))}
+                        placeholder="例如：JHP-001"
+                      />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -443,12 +665,15 @@ const Admin: React.FC = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="image_url">产品图片URL</Label>
-                      <Input
-                        id="image_url"
-                        value={productForm.image_url}
-                        onChange={(e) => setProductForm(prev => ({ ...prev, image_url: e.target.value }))}
-                        placeholder="https://example.com/image.jpg"
+                      <Label>产品图片</Label>
+                      <ImageUpload
+                        onImageUpload={(imageUrl, description) => {
+                          setProductForm(prev => ({
+                            ...prev,
+                            image_url: imageUrl
+                          }));
+                        }}
+                        currentImageUrl={productForm.image_url}
                       />
                     </div>
 
@@ -463,9 +688,63 @@ const Admin: React.FC = () => {
                       <Label htmlFor="is_featured">设为推荐产品</Label>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? '创建中...' : '创建产品'}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1" disabled={loading}>
+                        {loading ? (editingProduct ? '更新中...' : '创建中...') : (editingProduct ? '更新产品' : '创建产品')}
+                      </Button>
+                      {editingProduct && (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => {
+                            console.log('手动取消编辑，重置状态');
+                            setEditingProduct(null);
+                            setProductForm({
+                              name_zh: '',
+                              name_en: '',
+                              model: '',
+                              description_zh: '',
+                              description_en: '',
+                              category: '',
+                              specifications: '',
+                              features: '',
+                              applications: '',
+                              image_url: '',
+                              is_featured: false
+                            });
+                          }}
+                        >
+                          取消
+                        </Button>
+                      )}
+                      {/* 紧急重置按钮 - 仅在开发环境显示 */}
+                      {process.env.NODE_ENV === 'development' && (
+                        <Button 
+                          type="button" 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => {
+                            console.log('紧急重置所有编辑状态');
+                            resetEditingStates();
+                            setProductForm({
+                              name_zh: '',
+                              name_en: '',
+                              model: '',
+                              description_zh: '',
+                              description_en: '',
+                              category: '',
+                              specifications: '',
+                              features: '',
+                              applications: '',
+                              image_url: '',
+                              is_featured: false
+                            });
+                          }}
+                        >
+                          重置
+                        </Button>
+                      )}
+                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -486,10 +765,23 @@ const Admin: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {product.is_featured && <Badge variant="default">推荐</Badge>}
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              console.log('编辑按钮被点击！');
+                              handleEditProduct(product.id);
+                            }}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDeleteProduct(product.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -512,7 +804,7 @@ const Admin: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plus className="h-5 w-5" />
-                    创建新闻
+                    {editingNews ? '编辑新闻' : '创建新闻'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -622,9 +914,34 @@ const Admin: React.FC = () => {
                     </div>
 
 
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? '创建中...' : '创建新闻'}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1" disabled={loading}>
+                        {loading ? (editingNews ? '更新中...' : '创建中...') : (editingNews ? '更新新闻' : '创建新闻')}
+                      </Button>
+                      {editingNews && (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => {
+                            setEditingNews(null);
+                            setNewsForm({
+                              title_zh: '',
+                              title_en: '',
+                              content_zh: '',
+                              content_en: '',
+                              summary_zh: '',
+                              summary_en: '',
+                              category: '',
+                              image_url: '',
+                              image_description: '',
+                              is_featured: false
+                            });
+                          }}
+                        >
+                          取消
+                        </Button>
+                      )}
+                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -645,10 +962,18 @@ const Admin: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {article.is_featured && <Badge variant="default">推荐</Badge>}
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEditNews(article.id)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDeleteNews(article.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -685,7 +1010,13 @@ const Admin: React.FC = () => {
                             {inquiry.company && <p><strong>公司：</strong>{inquiry.company}</p>}
                             <p><strong>电话：</strong>{inquiry.phone}</p>
                             {inquiry.email && <p><strong>邮箱：</strong>{inquiry.email}</p>}
-                            <p><strong>时间：</strong>{new Date(inquiry.created_at).toLocaleString()}</p>
+                            <p><strong>时间：</strong>{new Date(inquiry.created_at).toLocaleString('zh-CN', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}</p>
                           </div>
                           {inquiry.message && (
                             <div className="mt-2">

@@ -7,6 +7,7 @@ import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import CustomerService from '@/components/common/CustomerService';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 
 // 语言检测组件
 const LanguageDetector: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -26,6 +27,9 @@ const LanguageDetector: React.FC<{ children: React.ReactNode }> = ({ children })
 const AppContent: React.FC = () => {
   const location = useLocation();
   const isAdminPage = location.pathname === '/admin';
+  
+  // 使用滚动到顶部Hook
+  useScrollToTop();
 
   return (
     <LanguageDetector>

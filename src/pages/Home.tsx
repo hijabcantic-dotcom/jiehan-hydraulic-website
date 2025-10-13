@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowRight, Phone, Users, Award, Globe, TrendingUp } from 'lucide-react';
+import { ArrowRight, Phone, Users, Award, Globe, TrendingUp, Star, Quote } from 'lucide-react';
 import { productApi, newsApi } from '@/db/api';
 import { Product, NewsArticle } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -22,10 +22,13 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Home: 开始获取首页数据');
         const [products, news] = await Promise.all([
           productApi.getFeaturedProducts(),
           newsApi.getPublishedNews()
         ]);
+        console.log('Home: 获取到的推荐产品:', products);
+        console.log('Home: 获取到的新闻:', news);
         setFeaturedProducts(products.slice(0, 4));
         setLatestNews(news.slice(0, 3));
       } catch (error) {
@@ -47,6 +50,70 @@ const Home: React.FC = () => {
     { number: '15', label: t('home.stats.experience'), icon: Award },
     { number: '30+', label: t('home.stats.countries'), icon: Globe },
     { number: '98%', label: t('home.stats.satisfaction'), icon: TrendingUp }
+  ];
+
+  // 客户评价数据
+  const testimonials = [
+    {
+      id: 1,
+      name: { zh: '张工程师', en: 'Engineer Zhang' },
+      company: { zh: '中联重科', en: 'Zoomlion' },
+      country: { zh: '中国', en: 'China' },
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang&backgroundColor=b6e3f4',
+      rating: 5,
+      content: '捷瀚液压的产品质量非常可靠，服务也很专业。我们的生产线使用他们的液压泵已经三年了，从未出现过故障。',
+      contentEn: 'Jiehan Hydraulic products are very reliable and their service is professional. Our production line has been using their hydraulic pumps for three years without any failures.'
+    },
+    {
+      id: 2,
+      name: { zh: 'Michael Johnson', en: 'Michael Johnson' },
+      company: { zh: 'Caterpillar Inc.', en: 'Caterpillar Inc.' },
+      country: { zh: '美国', en: 'United States' },
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=michael&backgroundColor=c0aede',
+      rating: 5,
+      content: 'Excellent hydraulic solutions! The technical support team is very responsive and the products meet all our quality standards.',
+      contentEn: 'Excellent hydraulic solutions! The technical support team is very responsive and the products meet all our quality standards.'
+    },
+    {
+      id: 3,
+      name: { zh: '李经理', en: 'Manager Li' },
+      company: { zh: '三一重工', en: 'SANY Group' },
+      country: { zh: '中国', en: 'China' },
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li&backgroundColor=ffd5dc',
+      rating: 5,
+      content: '与捷瀚液压合作多年，他们的产品性能稳定，价格合理，是我们值得信赖的合作伙伴。',
+      contentEn: 'We have been cooperating with Jiehan Hydraulic for many years. Their products have stable performance and reasonable prices, making them our trusted partner.'
+    },
+    {
+      id: 4,
+      name: { zh: 'Hans Mueller', en: 'Hans Mueller' },
+      company: { zh: 'Bosch Rexroth', en: 'Bosch Rexroth' },
+      country: { zh: '德国', en: 'Germany' },
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hans&backgroundColor=d1d4f9',
+      rating: 5,
+      content: 'Outstanding quality and innovation. Jiehan Hydraulic has been a reliable partner for our European operations.',
+      contentEn: 'Outstanding quality and innovation. Jiehan Hydraulic has been a reliable partner for our European operations.'
+    },
+    {
+      id: 5,
+      name: { zh: '王总', en: 'CEO Wang' },
+      company: { zh: '徐工集团', en: 'XCMG Group' },
+      country: { zh: '中国', en: 'China' },
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang&backgroundColor=ffdfbf',
+      rating: 5,
+      content: '捷瀚液压的技术团队非常专业，能够根据我们的特殊需求提供定制化解决方案。',
+      contentEn: 'Jiehan Hydraulic\'s technical team is very professional and can provide customized solutions according to our special needs.'
+    },
+    {
+      id: 6,
+      name: { zh: 'Sarah Williams', en: 'Sarah Williams' },
+      company: { zh: 'John Deere', en: 'John Deere' },
+      country: { zh: '美国', en: 'United States' },
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah&backgroundColor=fde68a',
+      rating: 5,
+      content: 'Excellent service and product quality. Jiehan Hydraulic has helped us improve our manufacturing efficiency significantly.',
+      contentEn: 'Excellent service and product quality. Jiehan Hydraulic has helped us improve our manufacturing efficiency significantly.'
+    }
   ];
 
   const { language } = useLanguage();
@@ -181,7 +248,7 @@ const Home: React.FC = () => {
                 </div>
               ))}
             </div>
-          ) : (
+          ) : featuredProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredProducts.map((product, index) => (
                 <AnimatedSection key={product.id} delay={index * 150} direction="up">
@@ -196,7 +263,7 @@ const Home: React.FC = () => {
                     <CardHeader>
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="secondary">{getCategoryLabel(product.category)}</Badge>
-                        {product.featured && (
+                        {product.is_featured && (
                           <Badge className="bg-orange-100 text-orange-800">推荐</Badge>
                         )}
                       </div>
@@ -214,6 +281,14 @@ const Home: React.FC = () => {
                   </Card>
                 </AnimatedSection>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg mb-4">暂无推荐产品</p>
+              <p className="text-gray-400 mb-6">请先在后台管理系统中设置推荐产品</p>
+              <Button asChild>
+                <Link to="/products">查看所有产品</Link>
+              </Button>
             </div>
           )}
 
@@ -258,7 +333,7 @@ const Home: React.FC = () => {
                     <div className="aspect-video overflow-hidden rounded-t-lg">
                       <img
                         src={article.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop'}
-                        alt={article.title}
+                        alt={language === 'zh' ? (article.title_zh || article.title) : (article.title_en || article.title)}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
@@ -266,16 +341,23 @@ const Home: React.FC = () => {
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline">{t(`news.category.${article.category}`)}</Badge>
                         <span className="text-xs text-gray-500">
-                          {new Date(article.created_at).toLocaleDateString()}
+                          {new Date(article.created_at).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
                         </span>
                       </div>
                       <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
-                        {article.title}
+                        {language === 'zh' ? (article.title_zh || article.title) : (article.title_en || article.title)}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                        {article.summary || article.content.substring(0, 100) + '...'}
+                        {language === 'zh' 
+                          ? (article.summary_zh || article.summary || (article.content_zh || article.content ? (article.content_zh || article.content).substring(0, 100) + '...' : ''))
+                          : (article.summary_en || article.summary || (article.content_en || article.content ? (article.content_en || article.content).substring(0, 100) + '...' : ''))
+                        }
                       </p>
                       <Button variant="outline" size="sm" className="w-full group-hover:bg-blue-600 group-hover:text-white transition-colors" asChild>
                         <Link to={`/news/${article.id}`}>
@@ -296,6 +378,72 @@ const Home: React.FC = () => {
                   {t('home.news.viewAll')} <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* Customer Testimonials Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection>
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                {language === 'en' ? 'Customer Testimonials' : '客户评价'}
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                {language === 'en' 
+                  ? 'What our customers say about our hydraulic solutions' 
+                  : '听听我们的客户对捷瀚液压解决方案的评价'
+                }
+              </p>
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection delay={200}>
+            <div className="relative">
+              {/* 自动滚动的评价卡片 */}
+              <div className="overflow-hidden">
+                <div className="flex animate-scroll space-x-6">
+                  {/* 重复显示评价以创建无缝滚动效果 */}
+                  {[...testimonials, ...testimonials].map((testimonial, index) => (
+                    <div key={`${testimonial.id}-${index}`} className="flex-shrink-0 w-80">
+                      <Card className="h-full bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <CardContent className="p-6">
+                          <div className="flex items-center mb-4">
+                            <img
+                              src={testimonial.avatar}
+                              alt={typeof testimonial.name === 'string' ? testimonial.name : testimonial.name[language]}
+                              className="w-12 h-12 rounded-full object-cover mr-4"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(typeof testimonial.name === 'string' ? testimonial.name : testimonial.name[language])}&background=random&color=fff&size=48`;
+                              }}
+                            />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{typeof testimonial.name === 'string' ? testimonial.name : testimonial.name[language]}</h4>
+                              <div className="flex items-center mt-1">
+                                <span className="text-xs text-gray-500 mr-2">{typeof testimonial.country === 'string' ? testimonial.country : testimonial.country[language]}</span>
+                                <div className="flex">
+                                  {[...Array(testimonial.rating)].map((_, i) => (
+                                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="relative">
+                            <Quote className="absolute -top-2 -left-2 w-8 h-8 text-blue-100" />
+                            <p className="text-gray-700 italic leading-relaxed pl-6">
+                              {language === 'en' ? testimonial.contentEn : testimonial.content}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </AnimatedSection>
         </div>

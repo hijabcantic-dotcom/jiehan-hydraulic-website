@@ -20,7 +20,8 @@ export interface NewsArticle {
   summary?: string;
   category: 'company' | 'industry' | 'product';
   image_url?: string;
-  published: boolean;
+  is_featured?: boolean;
+  published_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -29,15 +30,16 @@ export interface NewsArticle {
 export interface Product {
   id: string;
   name: string;
-  model: string;
-  category: 'pump' | 'valve' | 'cylinder' | 'accessory';
+  model?: string;
+  category: string; // 数据库中的实际分类名称
   description?: string;
   specifications?: Record<string, any>;
   image_url?: string;
   datasheet_url?: string;
-  applications?: string[];
-  featured: boolean;
+  applications?: string[] | string; // 可能是数组或字符串
+  is_featured?: boolean;
   created_at: string;
+  updated_at?: string;
 }
 
 // 表单提交类型

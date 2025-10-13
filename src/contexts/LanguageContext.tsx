@@ -59,6 +59,11 @@ const translations = {
     'product.search': '搜索产品...',
     'product.filter': '筛选',
     'product.featured': '推荐',
+    'product.noProducts': '暂无产品',
+    'product.noSearchResults': '没有找到匹配的产品，请尝试其他关键词',
+    'product.noProductsInCategory': '该分类下暂无产品',
+    'product.mainParameters': '主要参数',
+    'product.applicationScenarios': '应用场景',
     
     // 新闻相关
     'news.category.company': '公司动态',
@@ -151,6 +156,11 @@ const translations = {
     'product.search': 'Search products...',
     'product.filter': 'Filter',
     'product.featured': 'Featured',
+    'product.noProducts': 'No Products Available',
+    'product.noSearchResults': 'No matching products found, please try other keywords',
+    'product.noProductsInCategory': 'No products in this category',
+    'product.mainParameters': 'Main Parameters',
+    'product.applicationScenarios': 'Application Scenarios',
     
     // News
     'news.category.company': 'Company News',

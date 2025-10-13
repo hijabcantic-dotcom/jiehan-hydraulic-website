@@ -64,7 +64,7 @@ export const newsApi = {
     const { data, error } = await supabase
       .from('news_articles')
       .select('*')
-      .eq('published', true)
+      .not('published_at', 'is', null)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -81,7 +81,7 @@ export const newsApi = {
       .from('news_articles')
       .select('*')
       .eq('id', id)
-      .eq('published', true)
+      .not('published_at', 'is', null)
       .order('id', { ascending: true })
       .limit(1);
 
@@ -98,7 +98,7 @@ export const newsApi = {
     const { data, error } = await supabase
       .from('news_articles')
       .select('*')
-      .eq('published', true)
+      .not('published_at', 'is', null)
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -161,15 +161,27 @@ export const newsApi = {
 
   // 删除新闻
   async deleteNews(id: string): Promise<void> {
-    const { error } = await supabase
+    console.log('API: 开始删除新闻, ID:', id);
+    
+    const { data, error } = await supabase
       .from('news_articles')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select();
+
+    console.log('API: 删除新闻结果:', { data, error });
 
     if (error) {
       console.error('Error deleting news:', error);
-      throw error;
+      throw new Error(`删除新闻失败: ${error.message}`);
     }
+
+    if (!data || data.length === 0) {
+      console.warn('API: 没有找到要删除的新闻记录');
+      throw new Error('没有找到要删除的新闻记录');
+    }
+
+    console.log('API: 新闻删除成功');
   }
 };
 
@@ -211,7 +223,7 @@ export const productApi = {
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .eq('featured', true)
+      .eq('is_featured', true)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -248,15 +260,18 @@ export const productApi = {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }])
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error('Error creating product:', error);
       throw error;
     }
 
-    return data;
+    if (!data || data.length === 0) {
+      throw new Error('Failed to create product: no data returned');
+    }
+
+    return data[0];
   },
 
   // 更新产品
@@ -268,27 +283,42 @@ export const productApi = {
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error('Error updating product:', error);
       throw error;
     }
 
-    return data;
+    if (!data || data.length === 0) {
+      throw new Error(`Product with id ${id} not found`);
+    }
+
+    return data[0];
   },
 
   // 删除产品
   async deleteProduct(id: string): Promise<void> {
-    const { error } = await supabase
+    console.log('API: 开始删除产品, ID:', id);
+    
+    const { data, error } = await supabase
       .from('products')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select();
+
+    console.log('API: 删除产品结果:', { data, error });
 
     if (error) {
       console.error('Error deleting product:', error);
-      throw error;
+      throw new Error(`删除产品失败: ${error.message}`);
     }
+
+    if (!data || data.length === 0) {
+      console.warn('API: 没有找到要删除的产品记录');
+      throw new Error('没有找到要删除的产品记录');
+    }
+
+    console.log('API: 产品删除成功');
   }
 };

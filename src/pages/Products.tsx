@@ -19,199 +19,9 @@ const Products: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
-  const categories = [
-    { value: 'all', label: t('product.all') || '全部产品', count: 0 },
-    { value: 'pump', label: t('product.category.pump') || '液压泵', count: 0 },
-    { value: 'valve', label: t('product.category.valve') || '液压阀', count: 0 },
-    { value: 'cylinder', label: t('product.category.cylinder') || '液压缸', count: 0 },
-    { value: 'accessory', label: t('product.category.accessory') || '液压附件', count: 0 }
-  ];
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await productApi.getAllProducts();
-        setProducts(data);
-        setFilteredProducts(data);
-        
-        // 更新分类计数
-        categories[0].count = data.length;
-        categories[1].count = data.filter(p => p.category === 'pump').length;
-        categories[2].count = data.filter(p => p.category === 'valve').length;
-        categories[3].count = data.filter(p => p.category === 'cylinder').length;
-        categories[4].count = data.filter(p => p.category === 'accessory').length;
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    let filtered = products;
-
-    // 按分类筛选
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
-    }
-
-    // 按搜索词筛选
-    if (searchTerm) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredProducts(filtered);
-  }, [products, selectedCategory, searchTerm]);
-
-  const getCategoryLabel = (category: string) => {
-    return t(`product.category.${category}`) || category;
-  };
-
-  const ProductCard = ({ product }: { product: Product }) => (
-    <Card className="hover:shadow-lg transition-all duration-300 group">
-      <div className="aspect-square overflow-hidden rounded-t-lg">
-        <img
-          src={product.image_url || 'https://miaoda-site-img.cdn.bcebos.com/dba0567b-ca36-416a-9056-c26d04258ffd/images/c6fe284e-9df2-11f0-a567-1ea3ef713798_0.jpg'}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{product.name}</CardTitle>
-          <Badge variant="secondary">{product.model}</Badge>
-        </div>
-        <Badge variant="outline" className="w-fit">
-          {getCategoryLabel(product.category)}
-        </Badge>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {product.description}
-        </p>
-        
-        {/* 技术参数预览 */}
-        {product.specifications && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">主要参数</h4>
-            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-              {Object.entries(product.specifications).slice(0, 4).map(([key, value]) => (
-                <div key={key}>
-                  <span className="font-medium">{key}:</span> {value}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 应用场景 */}
-        {product.applications && product.applications.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">应用场景</h4>
-            <div className="flex flex-wrap gap-1">
-              {product.applications.slice(0, 3).map((app, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {app}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <Button variant="outline" size="sm" className="w-full" asChild>
-          <Link to={`/products/${product.id}`}>
-            {t('product.viewDetails') || '查看详情'} <ArrowRight className="ml-2 w-4 h-4" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
-  );
-
-  const ProductListItem = ({ product }: { product: Product }) => (
-    <Card className="hover:shadow-lg transition-all duration-300">
-      <div className="flex">
-        <div className="w-48 h-32 overflow-hidden rounded-l-lg flex-shrink-0">
-          <img
-            src={product.image_url || 'https://miaoda-site-img.cdn.bcebos.com/dba0567b-ca36-416a-9056-c26d04258ffd/images/c6fe284e-9df2-11f0-a567-1ea3ef713798_0.jpg'}
-            alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          />
-        </div>
-        <div className="flex-1 p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-                <Badge variant="secondary">{product.model}</Badge>
-                <Badge variant="outline">{getCategoryLabel(product.category)}</Badge>
-              </div>
-              <p className="text-gray-600 line-clamp-2">
-                {product.description}
-              </p>
-            </div>
-            <Button variant="outline" asChild>
-              <Link to={`/products/${product.id}`}>
-                {t('product.viewDetails') || '查看详情'} <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 技术参数 */}
-            {product.specifications && (
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">主要参数</h4>
-                <div className="space-y-1 text-sm text-gray-600">
-                  {Object.entries(product.specifications).slice(0, 3).map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="font-medium">{key}:</span>
-                      <span>{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 应用场景 */}
-            {product.applications && product.applications.length > 0 && (
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">应用场景</h4>
-                <div className="flex flex-wrap gap-1">
-                  {product.applications.map((app, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {app}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen pt-16 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('common.loading') || '加载产品信息中...'}</p>
-        </div>
-      </div>
-    );
-  }
-
-  const { language } = useLanguage();
+  // SEO相关数据
   const seoData = seoConfig.pages.products[language];
   const currentPath = language === 'en' ? '/en/products' : '/products';
   
@@ -236,11 +46,246 @@ const Products: React.FC = () => {
     '@type': 'CollectionPage',
     name: seoData.title,
     description: seoData.description,
+    url: currentPath,
     mainEntity: {
       '@type': 'ItemList',
+      numberOfItems: products.length,
       itemListElement: productStructuredData
     }
   });
+
+  const [categories, setCategories] = useState([
+    { value: 'all', label: t('product.all') || '全部产品', count: 0 },
+    { value: 'pump', label: t('product.category.pump') || '液压泵', count: 0 },
+    { value: 'valve', label: t('product.category.valve') || '液压阀', count: 0 },
+    { value: 'cylinder', label: t('product.category.cylinder') || '液压缸', count: 0 },
+    { value: 'accessory', label: t('product.category.accessory') || '液压附件', count: 0 }
+  ]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productApi.getAllProducts();
+        setProducts(data);
+        setFilteredProducts(data);
+        
+        // 更新分类计数
+        setCategories(prevCategories => [
+          { ...prevCategories[0], count: data.length },
+          { ...prevCategories[1], count: data.filter(p => p.category === '液压泵').length },
+          { ...prevCategories[2], count: data.filter(p => p.category === '液压阀').length },
+          { ...prevCategories[3], count: data.filter(p => p.category === '液压缸').length },
+          { ...prevCategories[4], count: data.filter(p => p.category === '液压配件').length }
+        ]);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    let filtered = products;
+
+    // 按分类筛选
+    if (selectedCategory !== 'all') {
+      const categoryMap: { [key: string]: string } = {
+        'pump': '液压泵',
+        'valve': '液压阀', 
+        'cylinder': '液压缸',
+        'accessory': '液压配件'
+      };
+      const targetCategory = categoryMap[selectedCategory];
+      if (targetCategory) {
+        filtered = filtered.filter(product => product.category === targetCategory);
+      }
+    }
+
+    // 按搜索词筛选
+    if (searchTerm) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredProducts(filtered);
+  }, [products, selectedCategory, searchTerm]);
+
+  const getCategoryLabel = (category: string) => {
+    return t(`product.category.${category}`) || category;
+  };
+
+  const ProductCard = ({ product }: { product: Product }) => {
+    const { language } = useLanguage();
+    const productName = language === 'zh' ? (product.name_zh || product.name) : (product.name_en || product.name);
+    const productDescription = language === 'zh' ? (product.description_zh || product.description) : (product.description_en || product.description);
+    
+    return (
+      <Card className="hover:shadow-lg transition-all duration-300 group cursor-pointer" asChild>
+        <Link to={`/products/${product.id}`} className="block">
+          <div className="aspect-square overflow-hidden rounded-t-lg">
+            <img
+              src={product.image_url || 'https://miaoda-site-img.cdn.bcebos.com/dba0567b-ca36-416a-9056-c26d04258ffd/images/c6fe284e-9df2-11f0-a567-1ea3ef713798_0.jpg'}
+              alt={productName}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">{productName}</CardTitle>
+              {product.model && <Badge variant="secondary">{product.model}</Badge>}
+            </div>
+            <Badge variant="outline" className="w-fit">
+              {getCategoryLabel(product.category)}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+              {productDescription}
+            </p>
+            
+            {/* 技术参数预览 */}
+            {product.specifications && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('product.mainParameters')}</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                  {Object.entries(product.specifications).slice(0, 4).map(([key, value]) => (
+                    <div key={key}>
+                      <span className="font-medium">{key}:</span> {value}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 应用场景 */}
+            {product.applications && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('product.applicationScenarios')}</h4>
+                <div className="flex flex-wrap gap-1">
+                  {(() => {
+                    // 处理applications字段，可能是数组或字符串
+                    let apps = [];
+                    if (Array.isArray(product.applications)) {
+                      apps = product.applications;
+                    } else if (typeof product.applications === 'string') {
+                      // 如果是字符串，按换行符或逗号分割
+                      apps = product.applications.split(/[\n,，]/).filter(app => app.trim());
+                    }
+                    return apps.slice(0, 3).map((app, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {app.trim()}
+                      </Badge>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-center text-blue-600 text-sm font-medium group-hover:text-blue-700">
+              {t('product.viewDetails')} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </CardContent>
+        </Link>
+      </Card>
+    );
+  };
+
+  const ProductListItem = ({ product }: { product: Product }) => {
+    const { language } = useLanguage();
+    const productName = language === 'zh' ? (product.name_zh || product.name) : (product.name_en || product.name);
+    const productDescription = language === 'zh' ? (product.description_zh || product.description) : (product.description_en || product.description);
+    
+    return (
+      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group" asChild>
+        <Link to={`/products/${product.id}`} className="block">
+          <div className="flex">
+            <div className="w-48 h-32 overflow-hidden rounded-l-lg flex-shrink-0">
+              <img
+                src={product.image_url || 'https://miaoda-site-img.cdn.bcebos.com/dba0567b-ca36-416a-9056-c26d04258ffd/images/c6fe284e-9df2-11f0-a567-1ea3ef713798_0.jpg'}
+                alt={productName}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="flex-1 p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900">{productName}</h3>
+                    {product.model && <Badge variant="secondary">{product.model}</Badge>}
+                    <Badge variant="outline">{getCategoryLabel(product.category)}</Badge>
+                  </div>
+                  <p className="text-gray-600 line-clamp-2">
+                    {productDescription}
+                  </p>
+                </div>
+                <div className="flex items-center text-blue-600 text-sm font-medium group-hover:text-blue-700">
+                  {t('product.viewDetails')} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 技术参数 */}
+            {product.specifications && (
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">主要参数</h4>
+                <div className="space-y-1 text-sm text-gray-600">
+                  {Object.entries(product.specifications).slice(0, 3).map(([key, value]) => (
+                    <div key={key} className="flex justify-between">
+                      <span className="font-medium">{key}:</span>
+                      <span>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 应用场景 */}
+            {product.applications && (
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">应用场景</h4>
+                <div className="flex flex-wrap gap-1">
+                  {(() => {
+                    // 处理applications字段，可能是数组或字符串
+                    let apps = [];
+                    if (Array.isArray(product.applications)) {
+                      apps = product.applications;
+                    } else if (typeof product.applications === 'string') {
+                      // 如果是字符串，按换行符或逗号分割
+                      apps = product.applications.split(/[\n,，]/).filter(app => app.trim());
+                    }
+                    return apps.map((app, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {app.trim()}
+                      </Badge>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      </Link>
+    </Card>
+  );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">{t('common.loading') || '加载产品信息中...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-16">
@@ -328,9 +373,9 @@ const Products: React.FC = () => {
               {filteredProducts.length === 0 ? (
                 <div className="text-center py-12">
                   <Filter className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">暂无产品</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('product.noProducts')}</h3>
                   <p className="text-gray-600">
-                    {searchTerm ? '没有找到匹配的产品，请尝试其他关键词' : '该分类下暂无产品'}
+                    {searchTerm ? t('product.noSearchResults') : t('product.noProductsInCategory')}
                   </p>
                 </div>
               ) : (
