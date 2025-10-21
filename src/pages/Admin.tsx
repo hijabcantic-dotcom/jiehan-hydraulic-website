@@ -21,6 +21,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import { productApi, newsApi, inquiryApi } from '@/db/api';
+import { resetMockData } from '@/db/supabase';
 import { Product, NewsArticle, CustomerInquiry } from '@/types/types';
 
 const Admin: React.FC = () => {
@@ -173,6 +174,15 @@ const Admin: React.FC = () => {
     }
   };
 
+  // 重置数据
+  const handleResetData = () => {
+    if (window.confirm('确定要重置所有数据吗？这将恢复默认的示例数据，当前数据将被覆盖。')) {
+      resetMockData();
+      loadData(); // 重新加载数据
+      toast.success('数据已重置为默认状态');
+    }
+  };
+
   // 统计数据
   const stats = {
     totalProducts: products.length,
@@ -191,12 +201,28 @@ const Admin: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900">后台管理系统</h1>
               <p className="text-gray-600 mt-1">捷瀚液压 - 内容管理</p>
             </div>
-            <Button 
-              onClick={() => window.open('/', '_blank')}
-              variant="outline"
-            >
-              查看网站
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button 
+                onClick={() => window.open('/', '_blank')}
+                variant="outline"
+              >
+                查看网站
+              </Button>
+              <Button 
+                onClick={loadData} 
+                disabled={loading}
+                variant="outline"
+              >
+                刷新数据
+              </Button>
+              <Button 
+                onClick={handleResetData} 
+                disabled={loading}
+                variant="destructive"
+              >
+                重置数据
+              </Button>
+            </div>
           </div>
         </div>
       </div>
