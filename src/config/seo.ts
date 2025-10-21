@@ -3,7 +3,7 @@ export const seoConfig = {
   site: {
     name: '捷瀚液压',
     nameEn: 'Jiehan Hydraulic',
-    url: 'https://jiehan-hydraulic.com',
+    url: 'https://www.jiehanhydraulic.com',
     description: '专注液压泵、液压阀及液压附件制造15年，为全球客户提供可靠、高效的液压解决方案',
     descriptionEn: 'Specialized in hydraulic pumps, valves and accessories manufacturing for 15 years, providing reliable and efficient hydraulic solutions for global customers',
     keywords: '液压泵,液压阀,液压缸,液压附件,液压系统,工程机械,捷瀚液压',

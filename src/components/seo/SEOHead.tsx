@@ -26,7 +26,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   alternateHrefs = []
 }) => {
   const { language } = useLanguage();
-  const siteUrl = 'https://jiehan-hydraulic.com'; // 替换为实际域名
+  const siteUrl = 'https://www.jiehanhydraulic.com'; // 替换为实际域名
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : undefined;
   const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 

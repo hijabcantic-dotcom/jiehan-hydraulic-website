@@ -22,7 +22,7 @@ Disallow: /test-*
 Disallow: /debug-*
 
 # 站点地图位置
-Sitemap: https://jiehan-hydraulic.com/sitemap.xml
+Sitemap: https://www.jiehanhydraulic.com/sitemap.xml
 
 # 爬取延迟（可选）
 Crawl-delay: 1
