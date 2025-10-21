@@ -10,7 +10,7 @@ import { productApi } from '@/db/api';
 import { Product } from '@/types/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SEOHead from '@/components/seo/SEOHead';
-import { seoConfig, generateStructuredData } from '@/config/seo';
+import { seoConfig, generateStructuredData, generateFAQStructuredData, generateBreadcrumbStructuredData } from '@/config/seo';
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -215,6 +215,46 @@ const Products: React.FC = () => {
   const seoData = seoConfig.pages.products[language];
   const currentPath = language === 'en' ? '/en/products' : '/products';
   
+  // FAQ数据
+  const faqData = {
+    zh: [
+      {
+        question: "捷瀚液压主要生产哪些产品？",
+        answer: "捷瀚液压主要生产齿轮泵、液压阀、液压附件等全系列液压产品，广泛应用于工程机械、农业、冶金及工业自动化领域。"
+      },
+      {
+        question: "产品是否支持OEM定制？",
+        answer: "是的，我们支持OEM定制设计与快速交付，可以根据客户需求进行产品定制化开发。"
+      },
+      {
+        question: "产品质量如何保证？",
+        answer: "我们通过ISO9001认证，拥有严格的质量控制体系，每款产品都经过严格测试，确保质量和性能。"
+      },
+      {
+        question: "如何获取产品技术资料？",
+        answer: "您可以通过联系我们获取详细的产品技术资料，我们的技术团队将为您提供专业的技术支持。"
+      }
+    ],
+    en: [
+      {
+        question: "What products does Jiehan Hydraulic manufacture?",
+        answer: "Jiehan Hydraulic manufactures gear pumps, hydraulic valves, hydraulic accessories and complete hydraulic product series, widely used in construction machinery, agriculture, metallurgy and industrial automation."
+      },
+      {
+        question: "Do you support OEM customization?",
+        answer: "Yes, we support OEM and custom design with fast delivery, and can develop customized products according to customer requirements."
+      },
+      {
+        question: "How do you ensure product quality?",
+        answer: "We are ISO9001 certified with strict quality control systems. Every product is rigorously tested to ensure quality and performance."
+      },
+      {
+        question: "How can I get product technical information?",
+        answer: "You can contact us to get detailed product technical information, and our technical team will provide professional technical support."
+      }
+    ]
+  };
+  
   // 生成产品结构化数据
   const productStructuredData = products.map(product => ({
     '@type': 'Product',
@@ -232,15 +272,30 @@ const Products: React.FC = () => {
     }
   }));
 
-  const structuredData = generateStructuredData('CollectionPage', {
-    '@type': 'CollectionPage',
-    name: seoData.title,
-    description: seoData.description,
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: productStructuredData
-    }
-  });
+  // 生成面包屑数据
+  const breadcrumbs = language === 'en' 
+    ? [
+        { name: 'Home', url: '/en' },
+        { name: 'Products', url: '/en/products' }
+      ]
+    : [
+        { name: '首页', url: '/' },
+        { name: '产品中心', url: '/products' }
+      ];
+
+  const structuredData = [
+    generateStructuredData('CollectionPage', {
+      '@type': 'CollectionPage',
+      name: seoData.title,
+      description: seoData.description,
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: productStructuredData
+      }
+    }),
+    generateFAQStructuredData(faqData[language]),
+    generateBreadcrumbStructuredData(breadcrumbs)
+  ];
 
   return (
     <div className="min-h-screen pt-16">
@@ -350,6 +405,33 @@ const Products: React.FC = () => {
               )}
             </TabsContent>
           </Tabs>
+        </div>
+      </section>
+
+      {/* FAQ部分 */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {language === 'en' ? 'Frequently Asked Questions' : '常见问题'}
+            </h2>
+            <p className="text-lg text-gray-600">
+              {language === 'en' ? 'Find answers to common questions about our hydraulic products' : '了解我们液压产品的常见问题解答'}
+            </p>
+          </div>
+          
+          <div className="space-y-6">
+            {faqData[language].map((faq, index) => (
+              <Card key={index} className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  {faq.question}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
     </div>

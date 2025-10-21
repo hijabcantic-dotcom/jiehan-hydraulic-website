@@ -21,7 +21,7 @@ import {
 import ConsultationForm from '@/components/forms/ConsultationForm';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SEOHead from '@/components/seo/SEOHead';
-import { seoConfig, generateStructuredData } from '@/config/seo';
+import { seoConfig, generateStructuredData, generateFAQStructuredData, generateBreadcrumbStructuredData } from '@/config/seo';
 
 const Solutions: React.FC = () => {
   const { language } = useLanguage();
@@ -229,20 +229,76 @@ const Solutions: React.FC = () => {
   const currentContent = content[language];
   const seoData = seoConfig.pages.solutions[language];
   const currentPath = language === 'en' ? '/en/solutions' : '/solutions';
-  const structuredData = generateStructuredData('SolutionsPage', {
-    '@type': 'SolutionsPage',
-    name: seoData.title,
-    description: seoData.description,
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: currentContent.solutions.map((solution, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: solution.title,
-        description: solution.description
-      }))
-    }
-  });
+  
+  // FAQ数据
+  const faqData = {
+    zh: [
+      {
+        question: "捷瀚液压提供哪些液压系统解决方案？",
+        answer: "我们提供工程机械、农业、冶金及工业自动化等领域的专业液压系统方案，包括挖掘机、装载机、起重机等设备的液压动力解决方案。"
+      },
+      {
+        question: "如何选择合适的液压系统方案？",
+        answer: "我们的专业团队会根据您的具体应用场景、工作环境和技术要求，为您量身定制最适合的液压系统解决方案。"
+      },
+      {
+        question: "液压系统方案的实施周期是多久？",
+        answer: "根据方案复杂程度，一般实施周期为2-8周。我们提供快速响应服务，确保项目按时交付。"
+      },
+      {
+        question: "是否提供液压系统的维护服务？",
+        answer: "是的，我们提供7×24小时技术支持服务，包括系统维护、故障诊断和配件供应等全方位服务。"
+      }
+    ],
+    en: [
+      {
+        question: "What hydraulic system solutions does Jiehan Hydraulic provide?",
+        answer: "We provide professional hydraulic system solutions for construction machinery, agriculture, metallurgy and industrial automation, including hydraulic power solutions for excavators, loaders, cranes and other equipment."
+      },
+      {
+        question: "How to choose the right hydraulic system solution?",
+        answer: "Our professional team will tailor the most suitable hydraulic system solution for you based on your specific application scenarios, working environment and technical requirements."
+      },
+      {
+        question: "What is the implementation cycle for hydraulic system solutions?",
+        answer: "Depending on the complexity of the solution, the implementation cycle is generally 2-8 weeks. We provide rapid response services to ensure on-time project delivery."
+      },
+      {
+        question: "Do you provide maintenance services for hydraulic systems?",
+        answer: "Yes, we provide 7×24 hours technical support services, including system maintenance, fault diagnosis and parts supply and other comprehensive services."
+      }
+    ]
+  };
+
+  // 生成面包屑数据
+  const breadcrumbs = language === 'en' 
+    ? [
+        { name: 'Home', url: '/en' },
+        { name: 'Solutions', url: '/en/solutions' }
+      ]
+    : [
+        { name: '首页', url: '/' },
+        { name: '解决方案', url: '/solutions' }
+      ];
+
+  const structuredData = [
+    generateStructuredData('SolutionsPage', {
+      '@type': 'SolutionsPage',
+      name: seoData.title,
+      description: seoData.description,
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: currentContent.solutions.map((solution, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: solution.title,
+          description: solution.description
+        }))
+      }
+    }),
+    generateFAQStructuredData(faqData[language]),
+    generateBreadcrumbStructuredData(breadcrumbs)
+  ];
 
   return (
     <div className="min-h-screen pt-16">
@@ -387,6 +443,33 @@ const Solutions: React.FC = () => {
               <ConsultationForm />
             </DialogContent>
           </Dialog>
+        </div>
+      </section>
+
+      {/* FAQ部分 */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {language === 'en' ? 'Frequently Asked Questions' : '常见问题'}
+            </h2>
+            <p className="text-lg text-gray-600">
+              {language === 'en' ? 'Find answers to common questions about our hydraulic solutions' : '了解我们液压解决方案的常见问题解答'}
+            </p>
+          </div>
+          
+          <div className="space-y-6">
+            {faqData[language].map((faq, index) => (
+              <Card key={index} className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  {faq.question}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
     </div>

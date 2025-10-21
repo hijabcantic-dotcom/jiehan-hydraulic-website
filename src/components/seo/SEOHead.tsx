@@ -30,13 +30,19 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : undefined;
   const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 
-  // 默认的alternate hrefs
-  const defaultAlternateHrefs = [
-    { href: `${siteUrl}/`, hrefLang: 'zh' },
-    { href: `${siteUrl}/en`, hrefLang: 'en' }
-  ];
+  // 默认的alternate hrefs - 根据当前路径生成对应的多语言版本
+  const getDefaultAlternateHrefs = () => {
+    const currentPath = window.location.pathname;
+    const isEnglish = currentPath.startsWith('/en');
+    const basePath = isEnglish ? currentPath.replace('/en', '') : currentPath;
+    
+    return [
+      { href: `${siteUrl}${basePath}`, hrefLang: 'zh-CN' },
+      { href: `${siteUrl}/en${basePath}`, hrefLang: 'en-US' }
+    ];
+  };
 
-  const allAlternateHrefs = alternateHrefs.length > 0 ? alternateHrefs : defaultAlternateHrefs;
+  const allAlternateHrefs = alternateHrefs.length > 0 ? alternateHrefs : getDefaultAlternateHrefs();
 
   return (
     <Helmet>
@@ -55,6 +61,10 @@ const SEOHead: React.FC<SEOHeadProps> = ({
         <link key={index} rel="alternate" hrefLang={alt.hrefLang} href={alt.href} />
       ))}
       <link rel="alternate" hrefLang="x-default" href={`${siteUrl}/`} />
+      
+      {/* 额外的hreflang标签 */}
+      <link rel="alternate" hrefLang="zh" href={`${siteUrl}/`} />
+      <link rel="alternate" hrefLang="en" href={`${siteUrl}/en`} />
       
       {/* Open Graph标签 */}
       <meta property="og:title" content={title} />

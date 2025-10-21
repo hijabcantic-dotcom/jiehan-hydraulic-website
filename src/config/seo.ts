@@ -13,40 +13,40 @@ export const seoConfig = {
   pages: {
     home: {
       zh: {
-        title: '捷瀚液压 - 专业液压解决方案提供商',
-        description: '专注液压泵、液压阀及液压附件制造15年，为全球客户提供可靠、高效的液压解决方案。产品涵盖液压泵、液压阀、液压缸等全系列液压产品。',
-        keywords: '液压泵,液压阀,液压缸,液压附件,液压系统,工程机械,捷瀚液压,液压解决方案'
+        title: '捷瀚液压 - 专业液压泵、液压阀与液压系统制造商',
+        description: '捷瀚液压(Foshan Jiehan) 专注液压泵、液压阀与液压系统研发制造, ISO9001认证,支持OEM定制与出口服务。',
+        keywords: '液压泵、液压阀、液压系统、液压解决方案'
       },
       en: {
-        title: 'Jiehan Hydraulic - Professional Hydraulic Solutions Provider',
-        description: 'Specialized in hydraulic pumps, valves and accessories manufacturing for 15 years, providing reliable and efficient hydraulic solutions for global customers. Products include hydraulic pumps, valves, cylinders and complete hydraulic product series.',
-        keywords: 'hydraulic pump,hydraulic valve,hydraulic cylinder,hydraulic accessories,hydraulic system,construction machinery,Jiehan Hydraulic,hydraulic solutions'
+        title: 'Jiehan Hydraulic - Professional Hydraulic Pump & Valve Manufacturer',
+        description: 'Jiehan Hydraulic specializes in manufacturing hydraulic pumps, valves and system solutions. ISO9001 certified. OEM and export supported.',
+        keywords: 'hydraulic pump, hydraulic valve, hydraulic system'
       }
     },
     
     about: {
       zh: {
-        title: '关于捷瀚液压 - 15年专业液压制造经验',
-        description: '捷瀚液压成立于2008年，专注液压泵、液压阀及液压附件制造15年。拥有先进的生产设备和专业的技术团队，为全球500+客户提供优质液压产品。',
-        keywords: '关于捷瀚液压,液压制造,液压技术,液压企业,液压公司,液压工厂'
+        title: '捷瀚液压 - 专业液压泵、液压阀与液压系统制造商',
+        description: '捷瀚液压(Foshan Jiehan) 专注液压泵、液压阀与液压系统研发制造, ISO9001认证,支持OEM定制与出口服务。',
+        keywords: '液压泵、液压阀、液压系统、液压解决方案'
       },
       en: {
-        title: 'About Jiehan Hydraulic - 15 Years Professional Hydraulic Manufacturing',
-        description: 'Jiehan Hydraulic was established in 2008, specializing in hydraulic pumps, valves and accessories manufacturing for 15 years. With advanced production equipment and professional technical team, serving 500+ global customers with quality hydraulic products.',
-        keywords: 'about Jiehan Hydraulic,hydraulic manufacturing,hydraulic technology,hydraulic company,hydraulic factory'
+        title: 'About Jiehan Hydraulic - Company Profile & Capabilities',
+        description: 'Established in 2008, Jiehan Hydraulic manufactures high-performance hydraulic components and systems for global clients.',
+        keywords: 'hydraulic company, hydraulic manufacturer, Jiehan Hydraulic'
       }
     },
     
     products: {
       zh: {
-        title: '产品展示 - 液压泵、液压阀、液压附件专业制造商',
-        description: '捷瀚液压产品展示，包括液压泵、液压阀、液压缸、液压附件等全系列产品。每款产品都经过严格测试，确保质量和性能。',
-        keywords: '液压产品,液压泵,液压阀,液压缸,液压附件,产品展示,液压设备'
+        title: '液压产品中心-齿轮泵、液压阀、液压附件',
+        description: '浏览捷瀚液压全系列产品,包括齿轮泵、液压阀、控制模块与附件。支持OEM、定制设计与快速交付。',
+        keywords: '液压产品、齿轮泵、液压阀、液压附件'
       },
       en: {
-        title: 'Products - Professional Hydraulic Pump, Valve and Accessories Manufacturer',
-        description: 'Jiehan Hydraulic products showcase, including hydraulic pumps, valves, cylinders, accessories and complete product series. Every product is strictly tested to ensure quality and performance.',
-        keywords: 'hydraulic products,hydraulic pump,hydraulic valve,hydraulic cylinder,hydraulic accessories,product showcase,hydraulic equipment'
+        title: 'Hydraulic Products - Gear Pumps, Valves & Components',
+        description: 'Explore Jiehan Hydraulic\'s full product range: gear pumps, valves, and accessories. OEM and custom design supported.',
+        keywords: 'hydraulic products, gear pump, hydraulic valve'
       }
     },
     
@@ -65,27 +65,27 @@ export const seoConfig = {
     
     solutions: {
       zh: {
-        title: '解决方案 - 定制化液压系统解决方案',
-        description: '捷瀚液压提供定制化液压系统解决方案，涵盖工程机械、农业机械、工业设备等多个领域。专业团队，量身定制。',
-        keywords: '液压解决方案,定制液压系统,工程机械,农业机械,工业设备,液压系统设计'
+        title: '液压系统解决方案-工程机械与工业应用',
+        description: '捷瀚液压提供专业液压系统方案,涵盖工程机械、农业、冶金及工业自动化应用。查看典型案例与配置建议。',
+        keywords: '液压系统、液压解决方案、液压应用'
       },
       en: {
-        title: 'Solutions - Customized Hydraulic System Solutions',
-        description: 'Jiehan Hydraulic provides customized hydraulic system solutions, covering construction machinery, agricultural machinery, industrial equipment and other fields. Professional team, tailor-made solutions.',
-        keywords: 'hydraulic solutions,customized hydraulic system,construction machinery,agricultural machinery,industrial equipment,hydraulic system design'
+        title: 'Hydraulic System Solutions - For Construction & Industrial Applications',
+        description: 'Professional hydraulic system solutions for engineering machinery, agriculture, metallurgy and industrial automation.',
+        keywords: 'hydraulic solutions, hydraulic system, industrial hydraulics'
       }
     },
     
     news: {
       zh: {
-        title: '新闻中心 - 捷瀚液压最新资讯和行业动态',
-        description: '关注捷瀚液压新闻中心，了解最新公司动态、行业资讯、技术文章。掌握液压行业前沿信息，把握市场脉搏。',
-        keywords: '液压新闻,行业动态,公司新闻,技术资讯,液压行业,市场动态'
+        title: '行业新闻与技术资讯-捷瀚液压动态',
+        description: '获取液压行业最新新闻、产品更新与技术指南。关注捷瀚液压,了解液压系统趋势与维护技巧。',
+        keywords: '液压新闻、液压知识、液压技术'
       },
       en: {
-        title: 'News Center - Latest Jiehan Hydraulic News and Industry Updates',
-        description: 'Follow Jiehan Hydraulic News Center for latest company updates, industry news, technical articles. Stay informed about hydraulic industry trends and market dynamics.',
-        keywords: 'hydraulic news,industry updates,company news,technical articles,hydraulic industry,market dynamics'
+        title: 'News & Insights - Jiehan Hydraulic Updates',
+        description: 'Latest hydraulic industry news, technical articles and company updates from Jiehan Hydraulic.',
+        keywords: 'hydraulic news, hydraulic technology, industry updates'
       }
     },
     
@@ -104,14 +104,14 @@ export const seoConfig = {
     
     contact: {
       zh: {
-        title: '联系我们 - 捷瀚液压专业服务团队',
-        description: '联系捷瀚液压专业服务团队，获取产品咨询、技术支持、售后服务。电话：+86 15313015206，邮箱：joe384326366@gmail.com。',
-        keywords: '联系我们,捷瀚液压,产品咨询,技术支持,售后服务,液压服务'
+        title: '联系捷瀚液压-销售与技术支持',
+        description: '联系捷瀚液压团队,获取报价、技术资料与售后支持。电话、邮箱、地址一览。',
+        keywords: '捷瀚液压 联系方式、液压厂家联系'
       },
       en: {
-        title: 'Contact Us - Jiehan Hydraulic Professional Service Team',
-        description: 'Contact Jiehan Hydraulic professional service team for product consultation, technical support, after-sales service. Phone: +86 15313015206, Email: joe384326366@gmail.com.',
-        keywords: 'contact us,Jiehan Hydraulic,product consultation,technical support,after-sales service,hydraulic service'
+        title: 'Contact Jiehan Hydraulic - Sales & Technical Support',
+        description: 'Contact Jiehan Hydraulic for product inquiries, technical support and cooperation opportunities.',
+        keywords: 'contact Jiehan Hydraulic, hydraulic supplier contact'
       }
     }
   }
@@ -142,4 +142,64 @@ export const generateStructuredData = (type: string, data: any) => {
   };
 
   return { ...baseStructuredData, ...data };
+};
+
+// 生成面包屑结构化数据
+export const generateBreadcrumbStructuredData = (breadcrumbs: Array<{name: string, url: string}>) => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: `${seoConfig.site.url}${item.url}`
+    }))
+  };
+};
+
+// 生成产品结构化数据
+export const generateProductStructuredData = (product: any) => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: product.image_url,
+    category: product.category,
+    brand: {
+      '@type': 'Brand',
+      name: 'Jiehan Hydraulic'
+    },
+    manufacturer: {
+      '@type': 'Organization',
+      name: 'Jiehan Hydraulic',
+      url: seoConfig.site.url
+    },
+    offers: {
+      '@type': 'Offer',
+      availability: 'https://schema.org/InStock',
+      priceCurrency: 'CNY',
+      seller: {
+        '@type': 'Organization',
+        name: 'Jiehan Hydraulic'
+      }
+    }
+  };
+};
+
+// 生成FAQ结构化数据
+export const generateFAQStructuredData = (faqs: Array<{question: string, answer: string}>) => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }))
+  };
 };
