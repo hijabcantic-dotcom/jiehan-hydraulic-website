@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { generateLanguageURL } from '@/utils/languageDetection';
 import ConsultationForm from '@/components/forms/ConsultationForm';
 
 const Header: React.FC = () => {
@@ -36,28 +37,8 @@ const Header: React.FC = () => {
   const handleLanguageChange = (newLanguage: 'zh' | 'en') => {
     setLanguage(newLanguage);
     
-    // 获取当前路径并转换为对应语言的路径
-    const currentPath = location.pathname;
-    let newPath = currentPath;
-    
-    if (newLanguage === 'en') {
-      // 切换到英文
-      if (currentPath === '/') {
-        newPath = '/en';
-      } else if (!currentPath.startsWith('/en')) {
-        newPath = '/en' + currentPath;
-      }
-    } else {
-      // 切换到中文
-      if (currentPath === '/en') {
-        newPath = '/';
-      } else if (currentPath.startsWith('/en')) {
-        newPath = currentPath.replace('/en', '');
-        if (newPath === '') {
-          newPath = '/';
-        }
-      }
-    }
+    // 使用工具函数生成新的URL
+    const newPath = generateLanguageURL(newLanguage, location.pathname);
     
     // 导航到新路径
     navigate(newPath);

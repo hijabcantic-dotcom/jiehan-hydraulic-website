@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { detectUserLanguage, shouldRedirectToLanguage, generateLanguageURL, type SupportedLanguage } from '@/utils/languageDetection';
 
-type Language = 'zh' | 'en';
+type Language = SupportedLanguage;
 
 interface LanguageContextType {
   language: Language;
@@ -209,12 +210,22 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   initialLanguage = 'zh' 
 }) => {
   const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as Language;
-    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
-      setLanguage(savedLanguage);
-    }
+    const initializeLanguage = async () => {
+      const detectedLanguage = await detectUserLanguage();
+      setLanguage(detectedLanguage);
+      setIsInitialized(true);
+      
+      // 检查是否需要重定向
+      if (shouldRedirectToLanguage(detectedLanguage, window.location.pathname)) {
+        const redirectUrl = generateLanguageURL(detectedLanguage, window.location.pathname);
+        window.location.href = redirectUrl;
+      }
+    };
+
+    initializeLanguage();
   }, []);
 
   const handleSetLanguage = (lang: Language) => {

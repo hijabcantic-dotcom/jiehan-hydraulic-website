@@ -36,9 +36,14 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     const isEnglish = currentPath.startsWith('/en');
     const basePath = isEnglish ? currentPath.replace('/en', '') : currentPath;
     
+    // 确保basePath不为空
+    const normalizedBasePath = basePath === '' ? '/' : basePath;
+    
     return [
-      { href: `${siteUrl}${basePath}`, hrefLang: 'zh-CN' },
-      { href: `${siteUrl}/en${basePath}`, hrefLang: 'en-US' }
+      { href: `${siteUrl}${normalizedBasePath}`, hrefLang: 'zh-CN' },
+      { href: `${siteUrl}/en${normalizedBasePath}`, hrefLang: 'en-US' },
+      { href: `${siteUrl}${normalizedBasePath}`, hrefLang: 'zh' },
+      { href: `${siteUrl}/en${normalizedBasePath}`, hrefLang: 'en' }
     ];
   };
 
@@ -61,10 +66,6 @@ const SEOHead: React.FC<SEOHeadProps> = ({
         <link key={index} rel="alternate" hrefLang={alt.hrefLang} href={alt.href} />
       ))}
       <link rel="alternate" hrefLang="x-default" href={`${siteUrl}/`} />
-      
-      {/* 额外的hreflang标签 */}
-      <link rel="alternate" hrefLang="zh" href={`${siteUrl}/`} />
-      <link rel="alternate" hrefLang="en" href={`${siteUrl}/en`} />
       
       {/* Open Graph标签 */}
       <meta property="og:title" content={title} />
