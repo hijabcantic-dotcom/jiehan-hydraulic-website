@@ -4,8 +4,8 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 检查是否使用模拟模式
-// 由于当前Supabase API不可用，强制使用模拟数据模式
-const useMockData = true; // 强制使用模拟数据
+// 如果环境变量未配置，则使用模拟数据模式
+const useMockData = !supabaseUrl || !supabaseAnonKey;
 
 if (useMockData) {
   console.log('使用模拟数据模式');

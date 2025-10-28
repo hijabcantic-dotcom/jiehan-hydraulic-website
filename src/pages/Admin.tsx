@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import EnhancedRichEditor from '@/components/ui/enhanced-rich-editor';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,11 +19,15 @@ import {
   Trash2,
   Upload,
   Eye,
-  EyeOff
+  EyeOff,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 import { productApi, newsApi, inquiryApi } from '@/db/api';
 import { resetMockData } from '@/db/supabase';
 import { Product, NewsArticle, CustomerInquiry } from '@/types/types';
+import ImageUpload from '@/components/ui/ImageUpload';
+import ImageManager from '@/components/admin/ImageManager';
 
 const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -30,6 +35,11 @@ const Admin: React.FC = () => {
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // 编辑状态
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // 产品表单状态
   const [productForm, setProductForm] = useState({
@@ -42,6 +52,7 @@ const Admin: React.FC = () => {
     features: '',
     applications: '',
     image_url: '',
+    image_description: '',
     is_featured: false
   });
 
@@ -55,6 +66,7 @@ const Admin: React.FC = () => {
     summary_en: '',
     category: '',
     image_url: '',
+    image_description: '',
     is_featured: false,
     is_published: true
   });
@@ -118,6 +130,7 @@ const Admin: React.FC = () => {
         features: '',
         applications: '',
         image_url: '',
+        image_description: '',
         is_featured: false
       });
 
@@ -161,6 +174,7 @@ const Admin: React.FC = () => {
         summary_en: '',
         category: '',
         image_url: '',
+        image_description: '',
         is_featured: false,
         is_published: true
       });
@@ -180,6 +194,144 @@ const Admin: React.FC = () => {
       resetMockData();
       loadData(); // 重新加载数据
       toast.success('数据已重置为默认状态');
+    }
+  };
+
+  // 编辑产品
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setProductForm({
+      name_zh: product.name_zh,
+      name_en: product.name_en,
+      description_zh: product.description_zh,
+      description_en: product.description_en,
+      category: product.category,
+      specifications: product.specifications,
+      features: product.features.join(', '),
+      applications: product.applications.join(', '),
+      image_url: product.image_url,
+      image_description: (product as any).image_description || '',
+      is_featured: product.is_featured
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // 编辑新闻
+  const handleEditNews = (article: NewsArticle) => {
+    setEditingNews(article);
+    setNewsForm({
+      title_zh: article.title_zh,
+      title_en: article.title_en,
+      content_zh: article.content_zh,
+      content_en: article.content_en,
+      summary_zh: article.summary_zh,
+      summary_en: article.summary_en,
+      category: article.category,
+      image_url: article.image_url,
+      image_description: (article as any).image_description || '',
+      is_featured: article.is_featured,
+      is_published: article.is_published
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // 更新产品
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    
+    setLoading(true);
+    try {
+      const updatedProduct: Product = {
+        ...editingProduct,
+        ...productForm,
+        features: productForm.features.split(',').map(f => f.trim()).filter(f => f),
+        applications: productForm.applications.split(',').map(a => a.trim()).filter(a => a),
+        updated_at: new Date().toISOString()
+      };
+
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
+      
+      // 重置表单和状态
+      setEditingProduct(null);
+      setIsEditModalOpen(false);
+      setProductForm({
+        name_zh: '',
+        name_en: '',
+        description_zh: '',
+        description_en: '',
+        category: '',
+        specifications: '',
+        features: '',
+        applications: '',
+        image_url: '',
+        image_description: '',
+        is_featured: false
+      });
+
+      toast.success('产品更新成功！');
+    } catch (error) {
+      console.error('更新产品失败:', error);
+      toast.error('更新产品失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 更新新闻
+  const handleUpdateNews = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingNews) return;
+    
+    setLoading(true);
+    try {
+      const updatedNews: NewsArticle = {
+        ...editingNews,
+        ...newsForm,
+        updated_at: new Date().toISOString()
+      };
+
+      setNews(prev => prev.map(n => n.id === editingNews.id ? updatedNews : n));
+      
+      // 重置表单和状态
+      setEditingNews(null);
+      setIsEditModalOpen(false);
+      setNewsForm({
+        title_zh: '',
+        title_en: '',
+        content_zh: '',
+        content_en: '',
+        summary_zh: '',
+        summary_en: '',
+        category: '',
+        image_url: '',
+        image_description: '',
+        is_featured: false,
+        is_published: true
+      });
+
+      toast.success('新闻更新成功！');
+    } catch (error) {
+      console.error('更新新闻失败:', error);
+      toast.error('更新新闻失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 删除产品
+  const handleDeleteProduct = async (productId: string) => {
+    if (window.confirm('确定要删除这个产品吗？')) {
+      setProducts(prev => prev.filter(p => p.id !== productId));
+      toast.success('产品删除成功！');
+    }
+  };
+
+  // 删除新闻
+  const handleDeleteNews = async (newsId: string) => {
+    if (window.confirm('确定要删除这篇新闻吗？')) {
+      setNews(prev => prev.filter(n => n.id !== newsId));
+      toast.success('新闻删除成功！');
     }
   };
 
@@ -229,10 +381,11 @@ const Admin: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">概览</TabsTrigger>
             <TabsTrigger value="products">产品管理</TabsTrigger>
             <TabsTrigger value="news">新闻管理</TabsTrigger>
+            <TabsTrigger value="images">图片管理</TabsTrigger>
             <TabsTrigger value="inquiries">咨询管理</TabsTrigger>
           </TabsList>
 
@@ -406,15 +559,21 @@ const Admin: React.FC = () => {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="image_url">产品图片URL</Label>
-                      <Input
-                        id="image_url"
-                        value={productForm.image_url}
-                        onChange={(e) => setProductForm(prev => ({ ...prev, image_url: e.target.value }))}
-                        placeholder="https://example.com/image.jpg"
-                      />
-                    </div>
+                    <ImageUpload
+                      value={productForm.image_url}
+                      description={productForm.image_description}
+                      onChange={(imageUrl, description) => setProductForm(prev => ({ 
+                        ...prev, 
+                        image_url: imageUrl,
+                        image_description: description
+                      }))}
+                      onRemove={() => setProductForm(prev => ({ 
+                        ...prev, 
+                        image_url: '',
+                        image_description: ''
+                      }))}
+                      placeholder="点击上传产品图片"
+                    />
 
                     <div className="flex items-center space-x-2">
                       <input
@@ -450,10 +609,18 @@ const Admin: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {product.is_featured && <Badge variant="default">推荐</Badge>}
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEditProduct(product)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDeleteProduct(product.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -523,25 +690,23 @@ const Admin: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <div>
                         <Label htmlFor="content_zh">新闻内容（中文）</Label>
-                        <Textarea
-                          id="content_zh"
-                          value={newsForm.content_zh}
-                          onChange={(e) => setNewsForm(prev => ({ ...prev, content_zh: e.target.value }))}
-                          rows={6}
-                          required
+                        <EnhancedRichEditor
+                          content={newsForm.content_zh}
+                          onChange={(content) => setNewsForm(prev => ({ ...prev, content_zh: content }))}
+                          placeholder="请输入新闻内容..."
+                          className="mt-2"
                         />
                       </div>
                       <div>
                         <Label htmlFor="content_en">新闻内容（英文）</Label>
-                        <Textarea
-                          id="content_en"
-                          value={newsForm.content_en}
-                          onChange={(e) => setNewsForm(prev => ({ ...prev, content_en: e.target.value }))}
-                          rows={6}
-                          required
+                        <EnhancedRichEditor
+                          content={newsForm.content_en}
+                          onChange={(content) => setNewsForm(prev => ({ ...prev, content_en: content }))}
+                          placeholder="Please enter news content..."
+                          className="mt-2"
                         />
                       </div>
                     </div>
@@ -560,15 +725,21 @@ const Admin: React.FC = () => {
                       </Select>
                     </div>
 
-                    <div>
-                      <Label htmlFor="news_image_url">新闻图片URL</Label>
-                      <Input
-                        id="news_image_url"
-                        value={newsForm.image_url}
-                        onChange={(e) => setNewsForm(prev => ({ ...prev, image_url: e.target.value }))}
-                        placeholder="https://example.com/image.jpg"
-                      />
-                    </div>
+                    <ImageUpload
+                      value={newsForm.image_url}
+                      description={newsForm.image_description}
+                      onChange={(imageUrl, description) => setNewsForm(prev => ({ 
+                        ...prev, 
+                        image_url: imageUrl,
+                        image_description: description
+                      }))}
+                      onRemove={() => setNewsForm(prev => ({ 
+                        ...prev, 
+                        image_url: '',
+                        image_description: ''
+                      }))}
+                      placeholder="点击上传新闻图片"
+                    />
 
                     <div className="flex items-center space-x-2">
                       <input
@@ -604,10 +775,18 @@ const Admin: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {article.is_featured && <Badge variant="default">推荐</Badge>}
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEditNews(article)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDeleteNews(article.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -620,6 +799,11 @@ const Admin: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* 图片管理 */}
+          <TabsContent value="images" className="space-y-6">
+            <ImageManager />
           </TabsContent>
 
           {/* 咨询管理 */}
@@ -675,6 +859,298 @@ const Admin: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* 编辑模态框 */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">
+                {editingProduct ? '编辑产品' : '编辑新闻'}
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingProduct(null);
+                  setEditingNews(null);
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {editingProduct && (
+              <form onSubmit={handleUpdateProduct} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit_name_zh">产品名称（中文）</Label>
+                    <Input
+                      id="edit_name_zh"
+                      value={productForm.name_zh}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, name_zh: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_name_en">产品名称（英文）</Label>
+                    <Input
+                      id="edit_name_en"
+                      value={productForm.name_en}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, name_en: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit_description_zh">产品描述（中文）</Label>
+                    <Textarea
+                      id="edit_description_zh"
+                      value={productForm.description_zh}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, description_zh: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_description_en">产品描述（英文）</Label>
+                    <Textarea
+                      id="edit_description_en"
+                      value={productForm.description_en}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, description_en: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit_category">产品分类</Label>
+                  <Select value={productForm.category} onValueChange={(value) => setProductForm(prev => ({ ...prev, category: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择产品分类" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="液压泵">液压泵</SelectItem>
+                      <SelectItem value="液压阀">液压阀</SelectItem>
+                      <SelectItem value="液压配件">液压配件</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit_specifications">技术参数</Label>
+                  <Textarea
+                    id="edit_specifications"
+                    value={productForm.specifications}
+                    onChange={(e) => setProductForm(prev => ({ ...prev, specifications: e.target.value }))}
+                    placeholder="每行一个参数，例如：排量: 0.5 ml/r"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="edit_features">产品特点</Label>
+                  <Input
+                    id="edit_features"
+                    value={productForm.features}
+                    onChange={(e) => setProductForm(prev => ({ ...prev, features: e.target.value }))}
+                    placeholder="用逗号分隔，例如：结构紧凑,性能稳定,维护简便"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="edit_applications">应用场景</Label>
+                  <Input
+                    id="edit_applications"
+                    value={productForm.applications}
+                    onChange={(e) => setProductForm(prev => ({ ...prev, applications: e.target.value }))}
+                    placeholder="用逗号分隔，例如：小型机械,测试设备,实验装置"
+                  />
+                </div>
+
+                <ImageUpload
+                  value={productForm.image_url}
+                  description={productForm.image_description}
+                  onChange={(imageUrl, description) => setProductForm(prev => ({ 
+                    ...prev, 
+                    image_url: imageUrl,
+                    image_description: description
+                  }))}
+                  onRemove={() => setProductForm(prev => ({ 
+                    ...prev, 
+                    image_url: '',
+                    image_description: ''
+                  }))}
+                  placeholder="点击上传产品图片"
+                />
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_is_featured"
+                    checked={productForm.is_featured}
+                    onChange={(e) => setProductForm(prev => ({ ...prev, is_featured: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="edit_is_featured">设为推荐产品</Label>
+                </div>
+
+                <div className="flex justify-end space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditModalOpen(false);
+                      setEditingProduct(null);
+                    }}
+                  >
+                    取消
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? '更新中...' : '更新产品'}
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {editingNews && (
+              <form onSubmit={handleUpdateNews} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit_title_zh">新闻标题（中文）</Label>
+                    <Input
+                      id="edit_title_zh"
+                      value={newsForm.title_zh}
+                      onChange={(e) => setNewsForm(prev => ({ ...prev, title_zh: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_title_en">新闻标题（英文）</Label>
+                    <Input
+                      id="edit_title_en"
+                      value={newsForm.title_en}
+                      onChange={(e) => setNewsForm(prev => ({ ...prev, title_en: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit_summary_zh">新闻摘要（中文）</Label>
+                    <Textarea
+                      id="edit_summary_zh"
+                      value={newsForm.summary_zh}
+                      onChange={(e) => setNewsForm(prev => ({ ...prev, summary_zh: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_summary_en">新闻摘要（英文）</Label>
+                    <Textarea
+                      id="edit_summary_en"
+                      value={newsForm.summary_en}
+                      onChange={(e) => setNewsForm(prev => ({ ...prev, summary_en: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="edit_content_zh">新闻内容（中文）</Label>
+                    <EnhancedRichEditor
+                      content={newsForm.content_zh}
+                      onChange={(content) => setNewsForm(prev => ({ ...prev, content_zh: content }))}
+                      placeholder="请输入新闻内容..."
+                      className="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_content_en">新闻内容（英文）</Label>
+                    <EnhancedRichEditor
+                      content={newsForm.content_en}
+                      onChange={(content) => setNewsForm(prev => ({ ...prev, content_en: content }))}
+                      placeholder="Please enter news content..."
+                      className="mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit_news_category">新闻分类</Label>
+                  <Select value={newsForm.category} onValueChange={(value) => setNewsForm(prev => ({ ...prev, category: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择新闻分类" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="公司新闻">公司新闻</SelectItem>
+                      <SelectItem value="行业动态">行业动态</SelectItem>
+                      <SelectItem value="技术资讯">技术资讯</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <ImageUpload
+                  value={newsForm.image_url}
+                  description={newsForm.image_description}
+                  onChange={(imageUrl, description) => setNewsForm(prev => ({ 
+                    ...prev, 
+                    image_url: imageUrl,
+                    image_description: description
+                  }))}
+                  onRemove={() => setNewsForm(prev => ({ 
+                    ...prev, 
+                    image_url: '',
+                    image_description: ''
+                  }))}
+                  placeholder="点击上传新闻图片"
+                />
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_news_is_featured"
+                    checked={newsForm.is_featured}
+                    onChange={(e) => setNewsForm(prev => ({ ...prev, is_featured: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="edit_news_is_featured">设为推荐新闻</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_news_is_published"
+                    checked={newsForm.is_published}
+                    onChange={(e) => setNewsForm(prev => ({ ...prev, is_published: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="edit_news_is_published">发布新闻</Label>
+                </div>
+
+                <div className="flex justify-end space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditModalOpen(false);
+                      setEditingNews(null);
+                    }}
+                  >
+                    取消
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? '更新中...' : '更新新闻'}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

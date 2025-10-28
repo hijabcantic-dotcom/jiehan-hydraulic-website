@@ -180,7 +180,7 @@ const NewsDetail: React.FC = () => {
             <div className="mb-8">
               <img
                 src={article.image_url}
-                alt={article.title}
+                alt={(article as any).image_description || article.title}
                 className="w-full h-96 object-cover rounded-lg shadow-lg"
               />
             </div>
@@ -188,9 +188,10 @@ const NewsDetail: React.FC = () => {
 
           {/* 文章正文 */}
           <div className="prose prose-lg max-w-none">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-line">
-              {article.content}
-            </div>
+            <div 
+              className="text-gray-800 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
           </div>
 
           {/* 文章底部 */}
@@ -227,7 +228,7 @@ const NewsDetail: React.FC = () => {
                   <div className="aspect-video overflow-hidden rounded-t-lg">
                     <img
                       src={relatedArticle.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop'}
-                      alt={relatedArticle.title}
+                      alt={(relatedArticle as any).image_description || relatedArticle.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>

@@ -120,7 +120,7 @@ const ProductDetail: React.FC = () => {
               <div className="aspect-square overflow-hidden rounded-lg shadow-lg">
                 <img
                   src={product.image_url || 'https://miaoda-site-img.cdn.bcebos.com/dba0567b-ca36-416a-9056-c26d04258ffd/images/c6fe284e-9df2-11f0-a567-1ea3ef713798_0.jpg'}
-                  alt={product.name}
+                  alt={(product as any).image_description || product.name}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -348,7 +348,7 @@ const ProductDetail: React.FC = () => {
                   <div className="aspect-square overflow-hidden rounded-t-lg">
                     <img
                       src={relatedProduct.image_url || 'https://miaoda-site-img.cdn.bcebos.com/dba0567b-ca36-416a-9056-c26d04258ffd/images/c6fe284e-9df2-11f0-a567-1ea3ef713798_0.jpg'}
-                      alt={relatedProduct.name}
+                      alt={(relatedProduct as any).image_description || relatedProduct.name}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </div>

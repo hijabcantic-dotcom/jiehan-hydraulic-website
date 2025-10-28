@@ -254,7 +254,7 @@ const News: React.FC = () => {
                   <div className="relative">
                     <img
                       src={article.image_url}
-                      alt={language === 'zh' ? article.title_zh : article.title_en}
+                      alt={(article as any).image_description || (language === 'zh' ? article.title_zh : article.title_en)}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
                     <Badge className="absolute top-4 left-4 bg-blue-600 text-white">
